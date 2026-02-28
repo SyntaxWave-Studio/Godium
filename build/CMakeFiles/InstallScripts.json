@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/vladik/Projects/Godium/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

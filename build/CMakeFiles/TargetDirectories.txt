@@ -1,0 +1,5 @@
+/home/vladik/Projects/Godium/build/CMakeFiles/GodiumIDE.dir
+/home/vladik/Projects/Godium/build/CMakeFiles/edit_cache.dir
+/home/vladik/Projects/Godium/build/CMakeFiles/rebuild_cache.dir
+/home/vladik/Projects/Godium/build/CMakeFiles/GodiumIDE_autogen_timestamp_deps.dir
+/home/vladik/Projects/Godium/build/CMakeFiles/GodiumIDE_autogen.dir
