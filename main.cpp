@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
         w->splitter()->addWidget(win);
     }
 
-    w->resize(800, 600);
-    w->show();
+    w->setGeometry(100, 100, 800, 600);
+    w->showNormal();
 
     return a.exec();
 }
