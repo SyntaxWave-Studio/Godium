@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <QTimer>
+#include <iostream>
 
 VirtualWindow::VirtualWindow(QWidget *parent) : QTabWidget(parent)
 {
@@ -35,6 +36,7 @@ void VirtualWindow::setupStyle()
         "QTabBar::tab:first { margin-left: 0px; padding-left: 10px; }"
         "QTabBar::tab:selected { background: #1e1e1e; color: #ffffff; border-top: 1px solid #007acc; }"
         "QTabBar::close-button { subcontrol-origin: margin; subcontrol-position: right; margin-right: 4px; width: 16px; }"
+        "QTabBar::close-button:hover { background: #454545; border-radius: 2px; }"
     );
 }
 
@@ -243,6 +245,8 @@ void VirtualWindow::dropEvent(QDropEvent *e)
 
 void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
 {
+    std::cout << "External Drop" << std::endl;
+
     Q_UNUSED(mime);
     Q_UNUSED(pos);
 }

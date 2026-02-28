@@ -11,8 +11,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent)
     {
-        setWindowTitle("Godium IDE");
-
         setStyleSheet("QMainWindow { background: #1e1e1e; }");
         setAttribute(Qt::WA_DeleteOnClose);
 

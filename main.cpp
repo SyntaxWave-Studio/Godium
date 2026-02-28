@@ -5,6 +5,11 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    a.setApplicationName("GodiumIDE");
+    a.setOrganizationName("SyntaxWaveStudio");
+    a.setApplicationDisplayName("GodiumIDE");
+
     a.setQuitOnLastWindowClosed(true);
     a.setStyle("Fusion");
 
