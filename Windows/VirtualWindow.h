@@ -45,6 +45,7 @@ private:
 
     void startDrag(int idx);
     void dropEvent(QDropEvent *e) override;
+    void externalDrop(const QMimeData *mime, const QPoint &pos);
 
     void handleDrop(int zone, QWidget *widget, const QString &title);
     void splitWindow(Qt::Orientation orientation, bool insertBefore, QWidget *widget, const QString &title);

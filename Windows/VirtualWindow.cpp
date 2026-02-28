@@ -211,7 +211,11 @@ void VirtualWindow::dropEvent(QDropEvent *e)
     preview->hide();
 
     if (!e->mimeData()->hasFormat("application/x-widget-ptr"))
+    {
+        externalDrop(e->mimeData(), e->position().toPoint());
+        e->acceptProposedAction();
         return;
+    }
 
     QWidget *droppedWidget = nullptr;
     VirtualWindow *sourceWin = nullptr;
@@ -235,8 +239,13 @@ void VirtualWindow::dropEvent(QDropEvent *e)
         sourceWin->removeTab(oldIdx);
 
     handleDrop(zone, droppedWidget, title);
-
     e->acceptProposedAction();
+}
+
+void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
+{
+    Q_UNUSED(mime);
+    Q_UNUSED(pos);
 }
 
 bool VirtualWindow::extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin)
