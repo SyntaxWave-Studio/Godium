@@ -30,7 +30,6 @@ void VirtualWindow::setupStyle()
         "QTabBar::tab { background: #2d2d2d; color: #969696; padding: 4px 8px; margin: 0px; min-width: 80px; border-right: 1px solid #181818; }"
         "QTabBar::tab:first { margin-left: 0px; padding-left: 10px; }"
         "QTabBar::tab:selected { background: #1e1e1e; color: #ffffff; border-top: 1px solid #007acc; }"
-        "QTabBar::close-button { background: #181818; }"
         "QTabBar::close-button:hover { subcontrol-origin: margin; subcontrol-position: right; margin-right: 4px; width: 16px; }");
 }
 
@@ -247,21 +246,24 @@ void VirtualWindow::dropEvent(QDropEvent *e)
     if (!extractDragData(e->mimeData(), droppedWidget, sourceWin))
         return;
 
-    if (sourceWin == this)
-    {
-        e->setDropAction(Qt::MoveAction);
-        e->accept();
-        return;
-    }
-
     QPoint pos = e->position().toPoint();
     int zone = determineDropZone(pos);
 
-    if (sourceWin == this && zone == 0)
+    if (sourceWin == this)
     {
-        e->setDropAction(Qt::LinkAction);
-        e->accept();
-        return;
+        bool isFromList = (sourceWin->count() > 1);
+        if (isFromList && zone == 0)
+        {
+            e->setDropAction(Qt::MoveAction);
+            e->accept();
+            return;
+        }
+        else if (!isFromList)
+        {
+            e->setDropAction(Qt::MoveAction);
+            e->accept();
+            return;
+        }
     }
 
     int oldIdx = sourceWin->indexOf(droppedWidget);
@@ -269,7 +271,9 @@ void VirtualWindow::dropEvent(QDropEvent *e)
         sourceWin->removeTab(oldIdx);
 
     handleDrop(zone, droppedWidget, title);
-    e->acceptProposedAction();
+
+    e->setDropAction(Qt::MoveAction);
+    e->accept();
 }
 
 void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
@@ -330,16 +334,16 @@ void VirtualWindow::splitWindow(Qt::Orientation orientation, bool insertBefore, 
     }
 
     int idx = parentSplitter->indexOf(this);
+    QList<int> parentSizes = parentSplitter->sizes();
+    int currentSpace = parentSizes[idx];
 
     if (parentSplitter->orientation() == orientation)
     {
         parentSplitter->insertWidget(insertBefore ? idx : idx + 1, newWin);
 
-        QList<int> sizes = parentSplitter->sizes();
-        int totalSpace = sizes[idx];
-        sizes[idx] = totalSpace / 2;
-        sizes.insert(insertBefore ? idx : idx + 1, totalSpace / 2);
-        parentSplitter->setSizes(sizes);
+        parentSizes[idx] = currentSpace / 2;
+        parentSizes.insert(insertBefore ? idx : idx + 1, currentSpace / 2);
+        parentSplitter->setSizes(parentSizes);
     }
     else
     {
@@ -360,7 +364,7 @@ void VirtualWindow::splitWindow(Qt::Orientation orientation, bool insertBefore, 
             newSplitter->addWidget(newWin);
         }
 
-        int currentSize = (orientation == Qt::Horizontal) ? width() : height();
-        newSplitter->setSizes({currentSize / 2, currentSize / 2});
+        newSplitter->setSizes({currentSpace / 2, currentSpace / 2});
+        parentSplitter->setSizes(parentSizes);
     }
 }
