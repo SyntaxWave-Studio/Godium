@@ -3,6 +3,12 @@
 
 #include "VirtualWindow.h"
 
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QFile>
+#include <QTextStream>
+#include <QFileInfo>
+
 class EditorWindow : public VirtualWindow
 {
     Q_OBJECT

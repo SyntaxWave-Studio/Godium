@@ -2,7 +2,13 @@
 #define DRAGDATA_H
 
 #include <QWidget>
-#include <VirtualWindow.h>
+#include <QIODevice>
+#include <QMimeData>
+#include <QString>
+#include <QByteArray>
+#include <QDataStream>
+
+class VirtualWindow;
 
 struct DragData
 {

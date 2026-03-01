@@ -15,6 +15,8 @@ add_executable(GodiumIDE
     Windows/MainWindow.h
     Windows/VirtualWindow.cpp 
     Windows/VirtualWindow.h
+    Windows/DragData.h
+    Windows/WindowFactory.h
     Windows/Editor/EditorWindow.cpp
     Windows/Editor/EditorWindow.h
 )

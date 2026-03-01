@@ -1,6 +1,7 @@
-#include <VirtualWindow.h>
-#include <MainWindow.h>
-#include <DragData.h>
+#include "VirtualWindow.h"
+#include "MainWindow.h"
+#include "DragData.h"
+#include "WindowFactory.h"
 
 VirtualWindow::VirtualWindow(QWidget *parent) : QTabWidget(parent)
 {
@@ -278,8 +279,28 @@ void VirtualWindow::dropEvent(QDropEvent *e)
 
 void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
 {
-    Q_UNUSED(mime);
-    Q_UNUSED(pos);
+    if (mime->hasUrls())
+    {
+        QList<QUrl> urls = mime->urls();
+        for (const QUrl &url : urls)
+        {
+            QString localPath = url.toLocalFile();
+            if (!localPath.isEmpty())
+            {
+                VirtualWindow *newWin = WindowFactory::createWindow(localPath);
+                if (!newWin)
+                {
+                    qWarning() << "WindowFactory не удалось создать окно для пути:" << localPath;
+                    continue;
+                }
+
+                int zone = determineDropZone(pos);
+                handleDrop(zone, newWin->widget(0), newWin->tabText(0));
+
+                newWin->deleteLater();
+            }
+        }
+    }
 }
 
 int VirtualWindow::determineDropZone(const QPoint &pos) const
