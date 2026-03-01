@@ -30,9 +30,8 @@ void VirtualWindow::setupStyle()
         "QTabBar::tab { background: #2d2d2d; color: #969696; padding: 4px 8px; margin: 0px; min-width: 80px; border-right: 1px solid #181818; }"
         "QTabBar::tab:first { margin-left: 0px; padding-left: 10px; }"
         "QTabBar::tab:selected { background: #1e1e1e; color: #ffffff; border-top: 1px solid #007acc; }"
-        "QTabBar::close-button { subcontrol-origin: margin; subcontrol-position: right; margin-right: 4px; width: 16px; }"
-        "QTabBar::close-button:hover { background: #454545; border-radius: 2px; }"
-    );
+        "QTabBar::close-button { background: #181818; }"
+        "QTabBar::close-button:hover { subcontrol-origin: margin; subcontrol-position: right; margin-right: 4px; width: 16px; }");
 }
 
 void VirtualWindow::setupPreview()
