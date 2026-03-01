@@ -2,7 +2,6 @@
 #define EDITORWINDOW_H
 
 #include "VirtualWindow.h"
-
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFile>

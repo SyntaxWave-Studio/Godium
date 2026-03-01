@@ -2,7 +2,6 @@
 #define WINDOWFACTORY_H
 
 #include "EditorWindow.h"
-
 #include <QString>
 #include <QVariant>
 #include <QFileInfo>

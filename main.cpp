@@ -1,6 +1,6 @@
+#include "MainWindow.h"
+#include "EditorWindow.h" 
 #include <QApplication>
-#include <MainWindow.h>
-#include <EditorWindow.h>
 
 int main(int argc, char *argv[])
 {
