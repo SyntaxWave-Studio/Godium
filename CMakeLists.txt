@@ -10,20 +10,23 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-add_executable(GodiumIDE 
-    main.cpp 
-    Windows/MainWindow.h
-    Windows/VirtualWindow.cpp 
-    Windows/VirtualWindow.h
-    Windows/DragData.h
-    Windows/WindowFactory.h
-    Windows/Editor/EditorWindow.cpp
-    Windows/Editor/EditorWindow.h
-)
+file(GLOB_RECURSE ALL_FILES "*.cpp" "*.h" "*.hpp" "*.ui" "*.qrc")
 
-target_include_directories(GodiumIDE PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Windows
-    ${CMAKE_CURRENT_SOURCE_DIR}/Windows/Editor
-)
+set(CLEAN_SOURCES "")
+foreach(FILE ${ALL_FILES})
+    if(NOT FILE MATCHES "\\.git" AND NOT FILE MATCHES "build" AND NOT FILE MATCHES "moc_")
+        list(APPEND CLEAN_SOURCES ${FILE})
+    endif()
+endforeach()
+
+add_executable(GodiumIDE ${CLEAN_SOURCES})
+
+file(GLOB_RECURSE ALL_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_SOURCE_DIR}/*")
+foreach(dir ${ALL_DIRS})
+    if(IS_DIRECTORY ${dir} AND NOT dir MATCHES "\\.git" AND NOT dir MATCHES "build")
+        target_include_directories(GodiumIDE PRIVATE ${dir})
+    endif()
+endforeach()
+target_include_directories(GodiumIDE PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(GodiumIDE PRIVATE Qt6::Widgets)
