@@ -247,6 +247,13 @@ void VirtualWindow::dropEvent(QDropEvent *e)
     if (!extractDragData(e->mimeData(), droppedWidget, sourceWin))
         return;
 
+    if (sourceWin == this)
+    {
+        e->setDropAction(Qt::MoveAction);
+        e->accept();
+        return;
+    }
+
     QPoint pos = e->position().toPoint();
     int zone = determineDropZone(pos);
 
