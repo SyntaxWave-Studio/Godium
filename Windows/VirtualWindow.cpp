@@ -1,11 +1,6 @@
-#include "VirtualWindow.h"
-#include "MainWindow.h"
-#include <QDrag>
-#include <QMimeData>
-#include <QMouseEvent>
-#include <QApplication>
-#include <QTimer>
-#include <iostream>
+#include <VirtualWindow.h>
+#include <MainWindow.h>
+#include <DragData.h>
 
 VirtualWindow::VirtualWindow(QWidget *parent) : QTabWidget(parent)
 {
@@ -83,32 +78,24 @@ bool VirtualWindow::eventFilter(QObject *obj, QEvent *e)
     return QTabWidget::eventFilter(obj, e);
 }
 
-void VirtualWindow::startDrag(int idx)
-{
-    QWidget *page = widget(idx);
-    QString title = tabText(idx);
-
-    QDrag *drag = new QDrag(this);
-    QMimeData *mime = createMimeData(page, title);
-    drag->setMimeData(mime);
-
-    Qt::DropAction result = drag->exec(Qt::MoveAction);
-
-    if (result == Qt::IgnoreAction)
-        createFloatingWindow(page, title);
-
-    checkEmptyAndCleanup();
-}
-
 QMimeData *VirtualWindow::createMimeData(QWidget *page, const QString &title)
 {
     QMimeData *mime = new QMimeData;
-    QByteArray data;
-    QDataStream ds(&data, QIODevice::WriteOnly);
-    ds << reinterpret_cast<quintptr>(page) << reinterpret_cast<quintptr>(this);
-    mime->setData("application/x-widget-ptr", data);
+    DragData dd;
+    dd.widget = page;
+    dd.sourceWindow = this;
+    dd.title = title;
+    mime->setData("application/x-widget-ptr", dd.serialize());
     mime->setText(title);
     return mime;
+}
+
+bool VirtualWindow::extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin)
+{
+    DragData dd = DragData::deserialize(mime);
+    widget = dd.widget;
+    sourceWin = dd.sourceWindow;
+    return widget && sourceWin;
 }
 
 void VirtualWindow::createFloatingWindow(QWidget *page, const QString &title)
@@ -117,32 +104,43 @@ void VirtualWindow::createFloatingWindow(QWidget *page, const QString &title)
     if (realIdx != -1)
         removeTab(realIdx);
 
-    MainWindow *floatingWin = new MainWindow();
+    VirtualWindow *newWin = createNew();
+    newWin->addTab(page, title);
+
+    QWidget *floatingWin = new QWidget();
     floatingWin->resize(this->size());
     floatingWin->move(QCursor::pos() - QPoint(50, 10));
 
-    VirtualWindow *newWin = createNew();
-    newWin->addTab(page, title);
-    floatingWin->splitter()->addWidget(newWin);
+    QVBoxLayout *layout = new QVBoxLayout(floatingWin);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(newWin);
+
     floatingWin->show();
 }
 
 void VirtualWindow::checkEmptyAndCleanup()
 {
-    if (count() == 0)
-    {
-        QWidget *topLevel = window();
-        QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
+    if (count() > 0)
+        return;
 
-        QTimer::singleShot(0, [this, parentSplitter, topLevel]() {
-            if (parentSplitter)
-                cleanupStructure(parentSplitter);
-            this->deleteLater();
+    QWidget *topLevel = window();
+    QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
 
-            if (topLevel && qobject_cast<QMainWindow *>(topLevel) && topLevel->findChildren<VirtualWindow *>().count() <= 1)
-                topLevel->close(); 
-        });
-    }
+    setParent(nullptr);
+    this->deleteLater();
+
+    if (parentSplitter)
+        cleanupStructure(parentSplitter);
+
+    QTimer::singleShot(0, [topLevel]() {
+        if (!topLevel) return;
+
+        auto remainingWindows = topLevel->findChildren<VirtualWindow *>();
+    
+        if (remainingWindows.isEmpty()) {
+            topLevel->close();
+        } 
+    });
 }
 
 void VirtualWindow::cleanupStructure(QSplitter *splitter)
@@ -159,8 +157,16 @@ void VirtualWindow::cleanupStructure(QSplitter *splitter)
 
         if (parentSplitter)
             cleanupStructure(parentSplitter);
-        else if (topLevel && qobject_cast<QMainWindow *>(topLevel) && QApplication::topLevelWidgets().count() > 1)
-            topLevel->close();
+        else if (topLevel && qobject_cast<QMainWindow *>(topLevel))
+        {
+            int vwCount = topLevel->findChildren<VirtualWindow *>().count();
+            qDebug() << "cleanupStructure: topLevel VirtualWindow count:" << vwCount;
+            if (vwCount == 0 && QApplication::topLevelWidgets().count() > 1)
+            {
+                qDebug() << "cleanupStructure: closing topLevel window";
+                topLevel->close();
+            }
+        }
     }
     else if (splitter->count() == 1 && parentSplitter)
     {
@@ -170,6 +176,23 @@ void VirtualWindow::cleanupStructure(QSplitter *splitter)
         splitter->deleteLater();
         cleanupStructure(parentSplitter);
     }
+}
+
+void VirtualWindow::startDrag(int idx)
+{
+    QWidget *page = widget(idx);
+    QString title = tabText(idx);
+
+    QDrag *drag = new QDrag(this);
+    QMimeData *mime = createMimeData(page, title);
+    drag->setMimeData(mime);
+
+    Qt::DropAction result = drag->exec(Qt::MoveAction);
+
+    if (result == Qt::IgnoreAction)
+        createFloatingWindow(page, title);
+
+    checkEmptyAndCleanup();
 }
 
 void VirtualWindow::dragEnterEvent(QDragEnterEvent *e)
@@ -245,23 +268,8 @@ void VirtualWindow::dropEvent(QDropEvent *e)
 
 void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
 {
-    std::cout << "External Drop" << std::endl;
-
     Q_UNUSED(mime);
     Q_UNUSED(pos);
-}
-
-bool VirtualWindow::extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin)
-{
-    QByteArray data = mime->data("application/x-widget-ptr");
-    QDataStream ds(&data, QIODevice::ReadOnly);
-    quintptr pagePtr = 0, sourceWinPtr = 0;
-    ds >> pagePtr >> sourceWinPtr;
-
-    widget = reinterpret_cast<QWidget *>(pagePtr);
-    sourceWin = reinterpret_cast<VirtualWindow *>(sourceWinPtr);
-
-    return widget && sourceWin;
 }
 
 int VirtualWindow::determineDropZone(const QPoint &pos) const

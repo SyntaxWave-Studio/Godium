@@ -1,15 +1,15 @@
 #include <QApplication>
-#include "MainWindow.h"
-#include "EditorWindow.h"
+#include <MainWindow.h>
+#include <EditorWindow.h>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
     a.setApplicationName("GodiumIDE");
-    a.setOrganizationName("SyntaxWaveStudio");
     a.setApplicationDisplayName("GodiumIDE");
-
+    a.setOrganizationName("SyntaxWaveStudio");
+    
     a.setQuitOnLastWindowClosed(true);
     a.setStyle("Fusion");
 
@@ -23,8 +23,6 @@ int main(int argc, char *argv[])
         w->splitter()->addWidget(win);
     }
 
-    w->setGeometry(100, 100, 800, 600);
     w->showNormal();
-
     return a.exec();
 }

@@ -15,13 +15,13 @@ add_executable(GodiumIDE
     Windows/MainWindow.h
     Windows/VirtualWindow.cpp 
     Windows/VirtualWindow.h
-    Editor/EditorWindow.cpp
-    Editor/EditorWindow.h
+    Windows/Editor/EditorWindow.cpp
+    Windows/Editor/EditorWindow.h
 )
 
 target_include_directories(GodiumIDE PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/Windows
-    ${CMAKE_CURRENT_SOURCE_DIR}/Editor
+    ${CMAKE_CURRENT_SOURCE_DIR}/Windows/Editor
 )
 
 target_link_libraries(GodiumIDE PRIVATE Qt6::Widgets)

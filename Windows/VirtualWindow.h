@@ -22,7 +22,8 @@ public:
 
     virtual void initializeContent(const QVariant &data) = 0;
     virtual VirtualWindow *createNew() = 0;
-private:
+
+protected:
     void setupUi();
     void setupStyle();
     void setupPreview();
@@ -30,27 +31,30 @@ private:
     void handleClose(int index);
     bool eventFilter(QObject *obj, QEvent *e) override;
 
-    void cleanupStructure(QSplitter *splitter);
-    QMimeData *createMimeData(QWidget *page, const QString &title);
-    void createFloatingWindow(QWidget *page, const QString &title);
     void checkEmptyAndCleanup();
+    void cleanupStructure(QSplitter *splitter);
 
-    QRect calculatePreviewRect(const QPoint &pos) const;
+    QMimeData *createMimeData(QWidget *page, const QString &title);
     bool extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin);
-    int determineDropZone(const QPoint &pos) const;
 
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dragMoveEvent(QDragMoveEvent *e) override;
     void dragLeaveEvent(QDragLeaveEvent *e) override;
+    void dropEvent(QDropEvent *e) override;
 
     void startDrag(int idx);
-    void dropEvent(QDropEvent *e) override;
     void externalDrop(const QMimeData *mime, const QPoint &pos);
+
+    QRect calculatePreviewRect(const QPoint &pos) const;
+    int determineDropZone(const QPoint &pos) const;
 
     void handleDrop(int zone, QWidget *widget, const QString &title);
     void splitWindow(Qt::Orientation orientation, bool insertBefore, QWidget *widget, const QString &title);
 
-    private : QRubberBand *preview = nullptr;
+    void createFloatingWindow(QWidget *page, const QString &title);
+
+protected:
+    QRubberBand *preview = nullptr;
     QPoint dragStartPos;
 };
 
