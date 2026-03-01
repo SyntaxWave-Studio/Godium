@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     const QStringList files = {"main.cpp", "Window.h", "EditorWindow.cpp", "styles.css", "Wavy-Lox.txt"};
     for (const QString &fileName : files)
     {
-        auto *win = new EditorWindow();
+        EditorWindow *win = new EditorWindow();
         win->initializeContent(fileName);
         w->splitter()->addWidget(win);
     }

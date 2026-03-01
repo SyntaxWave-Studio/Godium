@@ -107,12 +107,21 @@ void VirtualWindow::createFloatingWindow(QWidget *page, const QString &title)
     newWin->addTab(page, title);
 
     QWidget *floatingWin = new QWidget();
-    floatingWin->resize(this->size());
-    floatingWin->move(QCursor::pos() - QPoint(50, 10));
+
+    int baseSize = this->height();
+    int side = static_cast<int>(baseSize * 0.85);
+
+    side = std::clamp(side, 500, 1200);
+    floatingWin->resize(side, side);
+    floatingWin->move(QCursor::pos() - QPoint(side / 2, 30));
 
     QVBoxLayout *layout = new QVBoxLayout(floatingWin);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
     layout->addWidget(newWin);
+
+    floatingWin->setAttribute(Qt::WA_DeleteOnClose);
+    floatingWin->setWindowTitle(title);
 
     floatingWin->show();
 }
