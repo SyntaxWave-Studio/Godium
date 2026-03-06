@@ -1,7 +1,44 @@
 #include "VirtualWindow.h"
 #include "MainWindow.h"
-#include "DragData.h"
 #include "WindowFactory.h"
+
+enum DropZone
+{
+    ZoneCenter = 0,
+    ZoneLeft = 1,
+    ZoneRight = 2,
+    ZoneTop = 3,
+    ZoneBottom = 4
+};
+
+struct DragData
+{
+    QWidget *widget = nullptr;
+    VirtualWindow *sourceWindow = nullptr;
+    QString title;
+
+    QByteArray serialize() const
+    {
+        QByteArray data;
+        QDataStream ds(&data, QIODevice::WriteOnly);
+        ds << reinterpret_cast<quintptr>(widget)
+           << reinterpret_cast<quintptr>(sourceWindow)
+           << title;
+        return data;
+    }
+
+    static DragData deserialize(const QMimeData *mime)
+    {
+        DragData dd;
+        QByteArray data = mime->data("application/x-widget-ptr");
+        QDataStream ds(&data, QIODevice::ReadOnly);
+        quintptr wPtr = 0, swPtr = 0;
+        ds >> wPtr >> swPtr >> dd.title;
+        dd.widget = reinterpret_cast<QWidget *>(wPtr);
+        dd.sourceWindow = reinterpret_cast<VirtualWindow *>(swPtr);
+        return dd;
+    }
+};
 
 VirtualWindow::VirtualWindow(QWidget *parent) : QTabWidget(parent)
 {
@@ -77,26 +114,6 @@ bool VirtualWindow::eventFilter(QObject *obj, QEvent *e)
     return QTabWidget::eventFilter(obj, e);
 }
 
-QMimeData *VirtualWindow::createMimeData(QWidget *page, const QString &title)
-{
-    QMimeData *mime = new QMimeData;
-    DragData dd;
-    dd.widget = page;
-    dd.sourceWindow = this;
-    dd.title = title;
-    mime->setData("application/x-widget-ptr", dd.serialize());
-    mime->setText(title);
-    return mime;
-}
-
-bool VirtualWindow::extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin)
-{
-    DragData dd = DragData::deserialize(mime);
-    widget = dd.widget;
-    sourceWin = dd.sourceWindow;
-    return widget && sourceWin;
-}
-
 void VirtualWindow::createFloatingWindow(QWidget *page, const QString &title)
 {
     int realIdx = indexOf(page);
@@ -106,24 +123,18 @@ void VirtualWindow::createFloatingWindow(QWidget *page, const QString &title)
     VirtualWindow *newWin = createNew();
     newWin->addTab(page, title);
 
-    QWidget *floatingWin = new QWidget();
+    MainWindow *floatingMainWin = new MainWindow();
+    floatingMainWin->splitter()->addWidget(newWin);
 
     int baseSize = this->height();
     int side = static_cast<int>(baseSize * 0.85);
-
     side = std::clamp(side, 500, 1200);
-    floatingWin->resize(side, side);
-    floatingWin->move(QCursor::pos() - QPoint(side / 2, 30));
 
-    QVBoxLayout *layout = new QVBoxLayout(floatingWin);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    layout->addWidget(newWin);
+    floatingMainWin->resize(side, side);
+    floatingMainWin->move(QCursor::pos() - QPoint(side / 2, 30));
 
-    floatingWin->setAttribute(Qt::WA_DeleteOnClose);
-    floatingWin->setWindowTitle(title);
-
-    floatingWin->show();
+    floatingMainWin->setWindowTitle(title);
+    floatingMainWin->show();
 }
 
 void VirtualWindow::checkEmptyAndCleanup()
@@ -143,7 +154,7 @@ void VirtualWindow::checkEmptyAndCleanup()
     QTimer::singleShot(0, [topLevel]() {
         if (!topLevel) return;
 
-        auto remainingWindows = topLevel->findChildren<VirtualWindow *>();
+        QList<VirtualWindow *> remainingWindows = topLevel->findChildren<VirtualWindow *>();
     
         if (remainingWindows.isEmpty()) {
             topLevel->close();
@@ -186,13 +197,51 @@ void VirtualWindow::cleanupStructure(QSplitter *splitter)
     }
 }
 
+void VirtualWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasFormat("application/x-widget-ptr") || e->mimeData()->hasUrls())
+        e->acceptProposedAction();
+    else
+        e->ignore();
+}
+
+void VirtualWindow::dragMoveEvent(QDragMoveEvent *e)
+{
+    if (e->mimeData()->hasFormat("application/x-widget-ptr") || e->mimeData()->hasUrls())
+    {
+        e->acceptProposedAction();
+        preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
+        preview->show();
+    }
+    else
+    {
+        e->ignore();
+        preview->hide();
+    }
+}
+
+void VirtualWindow::dragLeaveEvent(QDragLeaveEvent *e)
+{
+    Q_UNUSED(e);
+    preview->hide();
+}
+
 void VirtualWindow::startDrag(int idx)
 {
     QWidget *page = widget(idx);
     QString title = tabText(idx);
 
+    DragData dd;
+    dd.widget = page;
+    dd.sourceWindow = this;
+    dd.title = title;
+
     QDrag *drag = new QDrag(this);
-    QMimeData *mime = createMimeData(page, title);
+    QMimeData *mime = new QMimeData();
+
+    mime->setData("application/x-widget-ptr", dd.serialize());
+    mime->setText(title);
+
     drag->setMimeData(mime);
 
     Qt::DropAction result = drag->exec(Qt::MoveAction);
@@ -203,87 +252,57 @@ void VirtualWindow::startDrag(int idx)
     checkEmptyAndCleanup();
 }
 
-void VirtualWindow::dragEnterEvent(QDragEnterEvent *e)
-{
-    e->acceptProposedAction();
-}
-
-void VirtualWindow::dragMoveEvent(QDragMoveEvent *e)
-{
-    e->acceptProposedAction();
-    preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
-    preview->show();
-}
-
-void VirtualWindow::dragLeaveEvent(QDragLeaveEvent *e)
-{
-    Q_UNUSED(e);
-    preview->hide();
-}
-
-QRect VirtualWindow::calculatePreviewRect(const QPoint &pos) const
-{
-    int w = width();
-    int h = height();
-
-    if (pos.x() < w * 0.2)
-        return QRect(0, 0, w / 2, h);
-    if (pos.x() > w * 0.8)
-        return QRect(w / 2, 0, w / 2, h);
-    if (pos.y() < h * 0.2)
-        return QRect(0, 0, w, h / 2);
-    if (pos.y() > h * 0.8)
-        return QRect(0, h / 2, w, h / 2);
-
-    return QRect(0, 0, w, h);
-}
-
 void VirtualWindow::dropEvent(QDropEvent *e)
 {
     preview->hide();
 
-    if (!e->mimeData()->hasFormat("application/x-widget-ptr"))
+    if (e->mimeData()->hasFormat("application/x-widget-ptr"))
+    {
+        DragData dd = DragData::deserialize(e->mimeData());
+
+        QWidget *droppedWidget = dd.widget;
+        VirtualWindow *sourceWin = dd.sourceWindow;
+        QString title = dd.title;
+
+        if (!droppedWidget || !sourceWin)
+        {
+            e->ignore();
+            return;
+        }
+
+        QPoint pos = e->position().toPoint();
+        int zone = determineDropZone(pos);
+
+        if (sourceWin == this)
+        {
+            bool isFromList = (sourceWin->count() > 1);
+            if ((isFromList && zone == ZoneCenter) || (!isFromList))
+            {
+                e->setDropAction(Qt::MoveAction);
+                e->accept();
+                return;
+            }
+        }
+
+        int oldIdx = sourceWin->indexOf(droppedWidget);
+        if (oldIdx != -1)
+            sourceWin->removeTab(oldIdx);
+
+        handleDrop(zone, droppedWidget, title);
+
+        e->setDropAction(Qt::MoveAction);
+        e->accept();
+    }
+    else if (e->mimeData()->hasUrls())
     {
         externalDrop(e->mimeData(), e->position().toPoint());
-        e->acceptProposedAction();
-        return;
+        e->setDropAction(Qt::CopyAction);
+        e->accept();
     }
-
-    QWidget *droppedWidget = nullptr;
-    VirtualWindow *sourceWin = nullptr;
-    QString title = e->mimeData()->text();
-
-    if (!extractDragData(e->mimeData(), droppedWidget, sourceWin))
-        return;
-
-    QPoint pos = e->position().toPoint();
-    int zone = determineDropZone(pos);
-
-    if (sourceWin == this)
+    else
     {
-        bool isFromList = (sourceWin->count() > 1);
-        if (isFromList && zone == 0)
-        {
-            e->setDropAction(Qt::MoveAction);
-            e->accept();
-            return;
-        }
-        else if (!isFromList)
-        {
-            e->setDropAction(Qt::MoveAction);
-            e->accept();
-            return;
-        }
+        e->ignore();
     }
-
-    int oldIdx = sourceWin->indexOf(droppedWidget);
-    if (oldIdx != -1)
-        sourceWin->removeTab(oldIdx);
-
-    handleDrop(zone, droppedWidget, title);
-
-    e->setDropAction(Qt::MoveAction);
-    e->accept();
 }
 
 void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
@@ -312,37 +331,54 @@ void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
     }
 }
 
+QRect VirtualWindow::calculatePreviewRect(const QPoint &pos) const
+{
+    int w = width();
+    int h = height();
+
+    if (pos.x() < w * 0.2)
+        return QRect(0, 0, w / 2, h);
+    if (pos.x() > w * 0.8)
+        return QRect(w / 2, 0, w / 2, h);
+    if (pos.y() < h * 0.2)
+        return QRect(0, 0, w, h / 2);
+    if (pos.y() > h * 0.8)
+        return QRect(0, h / 2, w, h / 2);
+
+    return QRect(0, 0, w, h);
+}
+
 int VirtualWindow::determineDropZone(const QPoint &pos) const
 {
     int w = width();
     int h = height();
 
     if (pos.x() < w * 0.2)
-        return 1;
+        return ZoneLeft;
     if (pos.x() > w * 0.8)
-        return 2;
+        return ZoneRight;
     if (pos.y() < h * 0.2)
-        return 3;
+        return ZoneTop;
     if (pos.y() > h * 0.8)
-        return 4;
+        return ZoneBottom;
 
-    return 0;
+    return ZoneCenter;
 }
 
 void VirtualWindow::handleDrop(int zone, QWidget *widget, const QString &title)
 {
     switch (zone)
     {
-    case 1:
+    case ZoneLeft:
         splitWindow(Qt::Horizontal, true, widget, title);
         break;
-    case 2:
+    case ZoneRight:
         splitWindow(Qt::Horizontal, false, widget, title);
         break;
-    case 3:
+    case ZoneTop:
         splitWindow(Qt::Vertical, true, widget, title);
         break;
-    case 4:
+    case ZoneBottom:
         splitWindow(Qt::Vertical, false, widget, title);
         break;
     default:

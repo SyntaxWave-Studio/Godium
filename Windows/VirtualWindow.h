@@ -29,20 +29,17 @@ protected:
     void setupPreview();
 
     void handleClose(int index);
-    bool eventFilter(QObject *obj, QEvent *e) override;
+    bool eventFilter(QObject *obj, QEvent *e);
 
     void checkEmptyAndCleanup();
     void cleanupStructure(QSplitter *splitter);
 
-    QMimeData *createMimeData(QWidget *page, const QString &title);
-    bool extractDragData(const QMimeData *mime, QWidget *&widget, VirtualWindow *&sourceWin);
-
-    void dragEnterEvent(QDragEnterEvent *e) override;
-    void dragMoveEvent(QDragMoveEvent *e) override;
-    void dragLeaveEvent(QDragLeaveEvent *e) override;
-    void dropEvent(QDropEvent *e) override;
-
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
     void startDrag(int idx);
+
+    void dropEvent(QDropEvent *e);
     void externalDrop(const QMimeData *mime, const QPoint &pos);
 
     QRect calculatePreviewRect(const QPoint &pos) const;
