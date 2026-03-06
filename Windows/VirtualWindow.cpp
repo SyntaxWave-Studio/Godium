@@ -151,13 +151,16 @@ void VirtualWindow::checkEmptyAndCleanup()
     if (parentSplitter)
         cleanupStructure(parentSplitter);
 
-    QTimer::singleShot(0, [topLevel]() {
-        if (!topLevel) return;
+    QPointer<QWidget> safeTopLevel = topLevel;
 
-        QList<VirtualWindow *> remainingWindows = topLevel->findChildren<VirtualWindow *>();
-    
+    QTimer::singleShot(0, [safeTopLevel]() {
+        if (!safeTopLevel)
+            return;
+
+        QList<VirtualWindow *> remainingWindows = safeTopLevel->findChildren<VirtualWindow *>();
+
         if (remainingWindows.isEmpty()) {
-            topLevel->close();
+            safeTopLevel->close();
         } 
     });
 }

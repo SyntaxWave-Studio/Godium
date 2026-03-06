@@ -2,6 +2,7 @@
 #define VIRTUALWINDOW_H
 
 #include <QTabWidget>
+#include <QPointer>
 #include <QTabBar>
 #include <QRubberBand>
 #include <QSplitter>
