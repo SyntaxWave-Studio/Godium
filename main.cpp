@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     MainWindow *w = new MainWindow();
 
-    const QStringList files = {"main.cpp", "Window.h", "EditorWindow.cpp", "styles.css", "Wavy-Lox.txt"};
+    const QStringList files = {"main.cpp", "style.css"};
     for (const QString &fileName : files)
     {
         EditorWindow *win = new EditorWindow();

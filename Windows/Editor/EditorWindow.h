@@ -2,19 +2,24 @@
 #define EDITORWINDOW_H
 
 #include "VirtualWindow.h"
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QFile>
-#include <QTextStream>
-#include <QFileInfo>
+#include <QTabWidget>
+#include <QPlainTextEdit>
+#include <QShortcut>
 
 class EditorWindow : public VirtualWindow
 {
     Q_OBJECT
 public:
-    using VirtualWindow::VirtualWindow;
+    explicit EditorWindow(QWidget *parent = nullptr);
+
     VirtualWindow *createNew() override;
     void initializeContent(const QVariant &data) override;
+
+private:
+    void setupUI(QWidget *container, QPlainTextEdit *editor, const QString &path);
+    void updateTabStatus(QWidget *container);
+    void handleTextChanged();
+    void saveFile();
 };
 
 #endif

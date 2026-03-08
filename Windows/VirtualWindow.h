@@ -21,16 +21,17 @@ public:
     explicit VirtualWindow(QWidget *parent = nullptr);
     virtual ~VirtualWindow() = default;
 
-    virtual void initializeContent(const QVariant &data) = 0;
     virtual VirtualWindow *createNew() = 0;
+    virtual void initializeContent(const QVariant &data) = 0;
 
-protected:
+private:
     void setupUi();
     void setupStyle();
     void setupPreview();
 
     void handleClose(int index);
     bool eventFilter(QObject *obj, QEvent *e);
+    void createFloatingWindow(VirtualWindow *page, const QString &title);
 
     void checkEmptyAndCleanup();
     void cleanupStructure(QSplitter *splitter);
@@ -46,12 +47,9 @@ protected:
     QRect calculatePreviewRect(const QPoint &pos) const;
     int determineDropZone(const QPoint &pos) const;
 
-    void handleDrop(int zone, QWidget *widget, const QString &title);
-    void splitWindow(Qt::Orientation orientation, bool insertBefore, QWidget *widget, const QString &title);
+    void handleDrop(int zone, VirtualWindow *window, const QString &title);
+    void splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title);
 
-    void createFloatingWindow(QWidget *page, const QString &title);
-
-protected:
     QRubberBand *preview = nullptr;
     QPoint dragStartPos;
 };
