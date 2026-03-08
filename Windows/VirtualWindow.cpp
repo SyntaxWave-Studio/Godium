@@ -285,37 +285,36 @@ void VirtualWindow::dropEvent(QDropEvent *e)
     }
     else if (e->mimeData()->hasUrls())
     {
-        externalDrop(e->mimeData(), e->position().toPoint());
+        const QMimeData *mime = e->mimeData();
+        const QPoint &pos = e->position().toPoint();
+
+        if (mime->hasUrls())
+        {
+            QList<QUrl> urls = mime->urls();
+            for (const QUrl &url : urls)
+            {
+                QString localPath = url.toLocalFile();
+                if (!localPath.isEmpty())
+                {
+                    VirtualWindow *newWin = WindowFactory::createWindow(localPath);
+                    if (!newWin)
+                    {
+                        qWarning() << "WindowFactory не удалось создать окно для пути:" << localPath;
+                        continue;
+                    }
+
+                    int zone = determineDropZone(pos);
+                    handleDrop(zone, newWin, newWin->windowTitle());
+                }
+            }
+        }
+
         e->setDropAction(Qt::CopyAction);
         e->accept();
     }
     else
     {
         e->ignore();
-    }
-}
-
-void VirtualWindow::externalDrop(const QMimeData *mime, const QPoint &pos)
-{
-    if (mime->hasUrls())
-    {
-        QList<QUrl> urls = mime->urls();
-        for (const QUrl &url : urls)
-        {
-            QString localPath = url.toLocalFile();
-            if (!localPath.isEmpty())
-            {
-                VirtualWindow *newWin = WindowFactory::createWindow(localPath);
-                if (!newWin)
-                {
-                    qWarning() << "WindowFactory не удалось создать окно для пути:" << localPath;
-                    continue;
-                }
-
-                int zone = determineDropZone(pos);
-                handleDrop(zone, newWin, newWin->windowTitle());
-            }
-        }
     }
 }
 

@@ -39,10 +39,9 @@ private:
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
+    
     void startDrag(int idx);
-
     void dropEvent(QDropEvent *e);
-    void externalDrop(const QMimeData *mime, const QPoint &pos);
 
     QRect calculatePreviewRect(const QPoint &pos) const;
     int determineDropZone(const QPoint &pos) const;
