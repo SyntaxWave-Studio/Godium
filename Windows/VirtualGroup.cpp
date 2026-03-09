@@ -103,7 +103,6 @@ void VirtualGroup::startDrag(int idx)
     drag->setMimeData(mime);
 
     Qt::DropAction result = drag->exec(Qt::MoveAction);
-
     if (result == Qt::IgnoreAction)
         createFloatingWindow(window, tabText(idx));
 
@@ -128,6 +127,7 @@ void VirtualGroup::createFloatingWindow(VirtualWindow *window, const QString &ti
     floatingMainWin->resize(side, side);
     floatingMainWin->move(QCursor::pos() - QPoint(side / 2, 30));
 
+
     floatingMainWin->setWindowTitle(title);
     floatingMainWin->show();
 }
@@ -147,16 +147,15 @@ void VirtualGroup::checkEmptyAndCleanup()
         cleanupStructure(parentSplitter);
 
     QPointer<QWidget> safeTopLevel = topLevel;
-    QTimer::singleShot(0, [safeTopLevel]()
-                       {
+    QTimer::singleShot(0, [safeTopLevel]() {
         if (!safeTopLevel)
             return;
 
         QList<VirtualGroup *> remainingGroups = safeTopLevel->findChildren<VirtualGroup *>();
 
-        if (remainingGroups.isEmpty()) {
+        if (remainingGroups.isEmpty())
             safeTopLevel->close();
-        } });
+    });
 }
 
 void VirtualGroup::cleanupStructure(QSplitter *splitter)
@@ -227,7 +226,6 @@ void VirtualGroup::dropEvent(QDropEvent *e)
     preview->hide();
 
     const QMimeData *mime = e->mimeData();
-
     if (mime->hasFormat("application/x-virtualwindow-ptr"))
     {
         quintptr ptr = mime->data("application/x-virtualwindow-ptr").toULongLong();
@@ -284,9 +282,7 @@ void VirtualGroup::dropEvent(QDropEvent *e)
         e->accept();
     }
     else
-    {
         e->ignore();
-    }
 }
 
 QRect VirtualGroup::calculatePreviewRect(const QPoint &pos) const
