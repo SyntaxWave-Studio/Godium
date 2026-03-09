@@ -13,7 +13,7 @@ class WindowFactory
 public:
     static VirtualWindow *createWindowFromUrl(const QUrl &url)
     {
-        if (url.isLocalFile())
+        if (!url.isLocalFile())
             return nullptr;
 
         QString path = url.toLocalFile();

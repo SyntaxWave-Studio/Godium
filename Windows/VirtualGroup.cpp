@@ -51,7 +51,7 @@ void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
         int idx = indexOf(window);
         if (idx != -1)
             setTabText(idx, newTitle); 
-    }, Qt::UniqueConnection);
+    });
 }
 
 void VirtualGroup::handleClose(int index)
