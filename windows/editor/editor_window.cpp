@@ -1,4 +1,5 @@
-#include "EditorWindow.h"
+#include "editor_window.h"
+
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QFileInfo>

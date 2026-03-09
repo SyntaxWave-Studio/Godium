@@ -1,6 +1,7 @@
-#include "MainWindow.h"
-#include "EditorWindow.h"
-#include "VirtualGroup.h"
+#include "main_window.h"
+#include "editor_window.h"
+#include "virtual_group.h"
+
 #include <QApplication>
 
 int main(int argc, char *argv[])

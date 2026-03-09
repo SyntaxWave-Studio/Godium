@@ -1,7 +1,8 @@
 #ifndef EDITORWINDOW_H
 #define EDITORWINDOW_H
 
-#include "VirtualWindow.h"
+#include "virtual_window.h"
+
 #include <QPlainTextEdit>
 #include <QShortcut>
 

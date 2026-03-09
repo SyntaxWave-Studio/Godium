@@ -1,18 +1,13 @@
 #ifndef VIRTUALGROUP_H
 #define VIRTUALGROUP_H
 
-#include "VirtualWindow.h"
+#include "virtual_window.h"
+
 #include <QTabWidget>
+#include <QPoint>
+#include <QRect>
 #include <QSplitter>
-#include <QDrag>
-#include <QMimeData>
-#include <QPointer>
-#include <QTimer>
 #include <QRubberBand>
-#include <QMouseEvent>
-#include <QApplication>
-#include <QDebug>
-#include <QTabBar>
 
 enum DropZone
 {

@@ -1,6 +1,17 @@
-#include "VirtualGroup.h"
-#include "MainWindow.h"
-#include "WindowFactory.h"
+#include "virtual_group.h"
+#include "main_window.h"
+#include "window_factory.h"
+
+#include <QDrag>
+#include <QMimeData>
+#include <QTimer>
+#include <QPointer>
+#include <QMouseEvent>
+#include <QApplication>
+#include <QCursor>
+#include <QMainWindow>
+#include <QDebug>
+#include <QTabBar>
 
 VirtualGroup::VirtualGroup(QWidget *parent) : QTabWidget(parent)
 {

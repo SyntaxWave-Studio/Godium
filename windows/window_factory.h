@@ -1,7 +1,8 @@
 #ifndef WINDOWFACTORY_H
 #define WINDOWFACTORY_H
 
-#include "EditorWindow.h"
+#include "editor_window.h"
+
 #include <QString>
 #include <QVariant>
 #include <QFileInfo>
