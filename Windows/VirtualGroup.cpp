@@ -192,7 +192,7 @@ void VirtualGroup::cleanupStructure(QSplitter *splitter)
 
 void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->hasFormat("application/x-widget-ptr") || e->mimeData()->hasUrls())
+    if (e->mimeData()->hasFormat("application/x-virtualwindow-ptr") || e->mimeData()->hasUrls())
         e->acceptProposedAction();
     else
     {
@@ -203,7 +203,7 @@ void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
 
 void VirtualGroup::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (e->mimeData()->hasFormat("application/x-widget-ptr") || e->mimeData()->hasUrls())
+    if (e->mimeData()->hasFormat("application/x-virtualwindow-ptr") || e->mimeData()->hasUrls())
     {
         e->acceptProposedAction();
         preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
