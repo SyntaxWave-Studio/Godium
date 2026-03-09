@@ -1,56 +1,29 @@
 #ifndef VIRTUALWINDOW_H
 #define VIRTUALWINDOW_H
 
-#include <QTabWidget>
-#include <QPointer>
-#include <QTabBar>
-#include <QRubberBand>
-#include <QSplitter>
-#include <QDrag>
-#include <QMimeData>
-#include <QMouseEvent>
-#include <QDragMoveEvent>
-#include <QVBoxLayout>
-#include <QApplication>
-#include <QTimer>
+#include <QWidget>
+#include <QVariant>
 
-class VirtualWindow : public QTabWidget
+class VirtualWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VirtualWindow(QWidget *parent = nullptr);
+    explicit VirtualWindow(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual ~VirtualWindow() = default;
-
     virtual VirtualWindow *createNew() = 0;
+
+    virtual QString tabTitle() const { return windowTitle(); }
+    virtual void setTabTitle(const QString &title) { setWindowTitle(title); }
+
     virtual void initializeContent(const QVariant &data) = 0;
+    virtual QString windowTitle() const { return m_title; }
+    virtual void setWindowTitle(const QString &title) { m_title = title; }
+    
+signals:
+    void tabTitleChanged(const QString &newTitle);
 
 private:
-    void setupUi();
-    void setupStyle();
-    void setupPreview();
-
-    void handleClose(int index);
-    bool eventFilter(QObject *obj, QEvent *e);
-    void createFloatingWindow(VirtualWindow *page, const QString &title);
-
-    void checkEmptyAndCleanup();
-    void cleanupStructure(QSplitter *splitter);
-
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dragMoveEvent(QDragMoveEvent *e);
-    void dragLeaveEvent(QDragLeaveEvent *e);
-    
-    void startDrag(int idx);
-    void dropEvent(QDropEvent *e);
-
-    QRect calculatePreviewRect(const QPoint &pos) const;
-    int determineDropZone(const QPoint &pos) const;
-
-    void handleDrop(int zone, VirtualWindow *window, const QString &title);
-    void splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title);
-
-    QRubberBand *preview = nullptr;
-    QPoint dragStartPos;
+    QString m_title;
 };
 
 #endif

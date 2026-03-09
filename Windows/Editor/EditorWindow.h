@@ -2,7 +2,6 @@
 #define EDITORWINDOW_H
 
 #include "VirtualWindow.h"
-#include <QTabWidget>
 #include <QPlainTextEdit>
 #include <QShortcut>
 
@@ -16,10 +15,10 @@ public:
     void initializeContent(const QVariant &data) override;
 
 private:
-    void setupUI(QWidget *container, QPlainTextEdit *editor, const QString &path);
-    void updateTabStatus(QWidget *container);
     void handleTextChanged();
     void saveFile();
+
+    QPlainTextEdit *m_editor = nullptr;
 };
 
 #endif

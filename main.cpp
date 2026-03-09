@@ -1,5 +1,6 @@
 #include "MainWindow.h"
-#include "EditorWindow.h" 
+#include "EditorWindow.h"
+#include "VirtualGroup.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -9,7 +10,7 @@ int main(int argc, char *argv[])
     a.setApplicationName("GodiumIDE");
     a.setApplicationDisplayName("GodiumIDE");
     a.setOrganizationName("SyntaxWaveStudio");
-    
+
     a.setQuitOnLastWindowClosed(true);
     a.setStyle("Fusion");
 
@@ -18,9 +19,13 @@ int main(int argc, char *argv[])
     const QStringList files = {"main.cpp", "style.css"};
     for (const QString &fileName : files)
     {
-        EditorWindow *win = new EditorWindow();
-        win->initializeContent(fileName);
-        w->splitter()->addWidget(win);
+        EditorWindow *editor = new EditorWindow();
+        editor->initializeContent(fileName);
+
+        VirtualGroup *group = new VirtualGroup();
+        group->addWindow(editor, editor->windowTitle());
+
+        w->splitter()->addWidget(group);
     }
 
     w->showNormal();
