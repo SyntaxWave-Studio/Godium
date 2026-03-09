@@ -11,11 +11,18 @@ class VirtualWindow;
 class WindowFactory
 {
 public:
-    static VirtualWindow *createWindow(const QVariant &data)
+    static VirtualWindow *createWindowFromUrl(const QUrl &url)
     {
-        QString path = data.toString();
-        QFileInfo fi(path);
+        if (url.isLocalFile())
+            return nullptr;
 
+        QString path = url.toLocalFile();
+        return createWindowFromPath(path);
+    }
+
+    static VirtualWindow *createWindowFromPath(const QString &path)
+    {
+        QFileInfo fi(path);
         if (fi.exists() && fi.isFile())
         {
             EditorWindow *win = new EditorWindow();

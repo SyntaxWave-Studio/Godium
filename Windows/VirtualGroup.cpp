@@ -51,7 +51,7 @@ void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
         int idx = indexOf(window);
         if (idx != -1)
             setTabText(idx, newTitle); 
-    });
+    }, Qt::UniqueConnection);
 }
 
 void VirtualGroup::handleClose(int index)
@@ -126,7 +126,6 @@ void VirtualGroup::createFloatingWindow(VirtualWindow *window, const QString &ti
 
     floatingMainWin->resize(side, side);
     floatingMainWin->move(QCursor::pos() - QPoint(side / 2, 30));
-
 
     floatingMainWin->setWindowTitle(title);
     floatingMainWin->show();
@@ -264,14 +263,10 @@ void VirtualGroup::dropEvent(QDropEvent *e)
 
         for (const QUrl &url : urls)
         {
-            QString localPath = url.toLocalFile();
-            if (localPath.isEmpty())
-                continue;
-
-            VirtualWindow *newWin = WindowFactory::createWindow(localPath);
+            VirtualWindow *newWin = WindowFactory::createWindowFromUrl(url);
             if (!newWin)
             {
-                qWarning() << "WindowFactory failed to create a window for path:" << localPath;
+                qWarning() << "WindowFactory failed to create a window for path:" << url.toLocalFile();
                 continue;
             }
 
