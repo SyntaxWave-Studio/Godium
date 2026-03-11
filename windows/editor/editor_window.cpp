@@ -35,14 +35,14 @@ void EditorWindow::initializeContent(const QVariant &data)
 
 void EditorWindow::setupLayout(const QString &path)
 {
-    auto *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     QString displayPath = path;
     displayPath.replace("/", " > ");
 
-    auto *breadcrumbs = new QLabel("  " + displayPath);
+    QLabel *breadcrumbs = new QLabel("  " + displayPath);
     breadcrumbs->setFixedHeight(25);
     breadcrumbs->setStyleSheet("background: #1e1e1e; color: #858585; font-size: 11px; border-bottom: 1px solid #2d2d2d;");
 
