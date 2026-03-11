@@ -7,16 +7,8 @@ class LineNumberArea : public QWidget
 {
 public:
     LineNumberArea(CodeEditor *editor) : QWidget(editor), m_editor(editor) {}
-
-    QSize sizeHint() const override 
-    { 
-        return QSize(m_editor->lineNumberAreaWidth(), 0); 
-    }
-
-    void paintEvent(QPaintEvent *event) override 
-    { 
-        m_editor->lineNumberAreaPaintEvent(event); 
-    }
+    QSize sizeHint() const override { return QSize(m_editor->lineNumberAreaWidth(), 0); }
+    void paintEvent(QPaintEvent *event) override { m_editor->lineNumberAreaPaintEvent(event); }
     
 private:
     CodeEditor *m_editor;
