@@ -1,18 +1,8 @@
 #include "code_editor.h"
+#include "line_number_area.h"
 
 #include <QPainter>
 #include <QTextBlock>
-
-class LineNumberArea : public QWidget
-{
-public:
-    LineNumberArea(CodeEditor *editor) : QWidget(editor), m_editor(editor) {}
-    QSize sizeHint() const override { return QSize(m_editor->lineNumberAreaWidth(), 0); }
-    void paintEvent(QPaintEvent *event) override { m_editor->lineNumberAreaPaintEvent(event); }
-    
-private:
-    CodeEditor *m_editor;
-};
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -108,8 +98,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                 painter.setPen(QColor("#858585"));
             }
 
-            painter.drawText(0, top, lineNumberArea->width() - 8, fontMetrics().height(),
-                             Qt::AlignRight, QString::number(blockNumber + 1));
+            painter.drawText(0, top, lineNumberArea->width() - 8, fontMetrics().height(), Qt::AlignRight, QString::number(blockNumber + 1));
         }
         block = block.next();
         top = bottom;
