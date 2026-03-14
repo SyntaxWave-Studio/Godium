@@ -13,6 +13,9 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
+    updateLineNumberAreaWidth(0);
+    highlightCurrentLine();
+
     setFrameStyle(QFrame::NoFrame);
     setStyleSheet("background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px;");
 }
