@@ -38,7 +38,7 @@ void LineNumberArea::paintEvent(QPaintEvent *event)
         if (block.isVisible() && bottom >= event->rect().top())
         {
             painter.setPen(QColor("#858585"));
-            painter.drawText(0, top, width() - 10, bottom - top, Qt::AlignRight | Qt::AlignVCenter, QString::number(blockNumber + 1));
+            painter.drawText(0, top, width() - 10, bottom - top, Qt::AlignRight | Qt::AlignTop, QString::number(blockNumber + 1));
         }
         block = block.next();
         top = bottom;
