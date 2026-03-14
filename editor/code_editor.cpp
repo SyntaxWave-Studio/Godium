@@ -69,6 +69,8 @@ void CodeEditor::highlightCurrentLine()
 void CodeEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
+    updateLineNumberAreaWidth(0);
+    
     QRect cr = contentsRect();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }

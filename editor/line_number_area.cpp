@@ -20,6 +20,8 @@ void LineNumberArea::updateLineNumberArea(const QRect &rect, int dy)
 void LineNumberArea::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+    painter.setFont(m_editor->font());
+    
     painter.fillRect(event->rect(), QColor("#181818"));
 
     painter.setPen(QColor("#333333"));
