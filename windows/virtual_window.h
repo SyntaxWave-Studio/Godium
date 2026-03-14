@@ -10,7 +10,6 @@ class VirtualWindow : public QWidget
 public:
     explicit VirtualWindow(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual ~VirtualWindow() = default;
-    virtual VirtualWindow *createNew() = 0;
 
     virtual QString tabTitle() const { return windowTitle(); }
     virtual void setTabTitle(const QString &title) { setWindowTitle(title); }

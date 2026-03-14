@@ -9,8 +9,6 @@
 
 EditorWindow::EditorWindow(QWidget *parent) : VirtualWindow(parent) {}
 
-VirtualWindow *EditorWindow::createNew() { return new EditorWindow(); }
-
 void EditorWindow::initializeContent(const QVariant &data)
 {
     QString path = data.toString();

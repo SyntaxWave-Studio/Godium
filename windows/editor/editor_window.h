@@ -9,7 +9,6 @@ class EditorWindow : public VirtualWindow
     Q_OBJECT
 public:
     explicit EditorWindow(QWidget *parent = nullptr);
-    VirtualWindow *createNew() override;
     void initializeContent(const QVariant &data) override;
 private:
     CodeEditor *m_editor = nullptr;
