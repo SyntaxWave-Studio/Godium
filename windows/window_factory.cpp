@@ -5,7 +5,7 @@
 #include <QVariant>
 #include <QFileInfo>
 
-VirtualWindow WindowFactory::*createWindowFromUrl(const QUrl &url)
+VirtualWindow* WindowFactory::createWindowFromUrl(const QUrl &url)
 {
     if (!url.isLocalFile())
         return nullptr;
@@ -14,7 +14,7 @@ VirtualWindow WindowFactory::*createWindowFromUrl(const QUrl &url)
     return createWindowFromPath(path);
 }
 
-VirtualWindow WindowFactory::*createWindowFromPath(const QString &path)
+VirtualWindow* WindowFactory::createWindowFromPath(const QString &path)
 {
     QFileInfo fi(path);
     if (fi.exists() && fi.isFile())
