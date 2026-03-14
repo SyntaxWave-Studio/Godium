@@ -2,6 +2,7 @@
 #include "line_number_area.h"
 
 #include <QTextBlock>
+#include <QScrollBar>
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -22,6 +23,14 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
     setFrameStyle(QFrame::NoFrame);
     setStyleSheet("background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px;");
+
+    verticalScrollBar()->setStyleSheet(
+        "QScrollBar:vertical { background: #1e1e1e; width: 14px; margin: 0px; border: none; }"
+        "QScrollBar::handle:vertical { background: rgba(121, 121, 121, 0.4); min-height: 20px; margin: 2px 3px; border-radius: 0px; }"
+        "QScrollBar::handle:vertical:hover { background: rgba(121, 121, 121, 0.7); }"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; background: none; border: none; }"
+        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }"
+    );
 }
 
 int CodeEditor::lineNumberAreaWidth() const
