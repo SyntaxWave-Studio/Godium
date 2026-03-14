@@ -20,7 +20,12 @@ void LineNumberArea::updateLineNumberArea(const QRect &rect, int dy)
 void LineNumberArea::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.fillRect(event->rect(), QColor("#1e1e1e"));
+    // 1. Фон панели (чуть темнее основного, чтобы отделить слои)
+    painter.fillRect(event->rect(), QColor("#181818"));
+
+    // 2. Вертикальная линия-разделитель (справа)
+    painter.setPen(QColor("#333333"));
+    painter.drawLine(width() - 1, 0, width() - 1, height());
 
     QTextBlock block = m_editor->firstVisibleBlock();
     int blockNumber = block.blockNumber();
@@ -32,17 +37,8 @@ void LineNumberArea::paintEvent(QPaintEvent *event)
     {
         if (block.isVisible() && bottom >= event->rect().top())
         {
-            if (blockNumber == cursorBlockNumber)
-            {
-                painter.fillRect(0, top, width(), bottom - top, QColor("#2d2d2d"));
-                painter.setPen(QColor("#ffffff"));
-            }
-            else
-            {
-                painter.setPen(QColor("#858585"));
-            }
-
-            painter.drawText(0, top, width() - 5, bottom - top, Qt::AlignRight | Qt::AlignVCenter, QString::number(blockNumber + 1));
+            painter.setPen(QColor("#858585"));
+            painter.drawText(0, top, width() - 10, bottom - top, Qt::AlignRight | Qt::AlignVCenter, QString::number(blockNumber + 1));
         }
         block = block.next();
         top = bottom;

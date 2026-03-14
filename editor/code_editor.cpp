@@ -9,6 +9,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
     setAcceptDrops(false);
     viewport()->setAcceptDrops(false);
+    document()->setDocumentMargin(0);
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
@@ -29,12 +30,12 @@ int CodeEditor::lineNumberAreaWidth() const
         max /= 10;
         digits++;
     }
-    return 10 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+    return 20 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int)
 {
-    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+    setViewportMargins(lineNumberAreaWidth() + 3, 0, 3, 0);
 }
 
 void CodeEditor::highlightCurrentLine()
