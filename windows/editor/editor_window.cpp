@@ -51,6 +51,9 @@ void EditorWindow::setupLayout(const QString &path)
     layout->addWidget(breadcrumbs);
     layout->addWidget(m_editor);
 
+    this->setLayout(layout);
+    m_editor->updateGeometry();
+
     connect(m_editor, &CodeEditor::textChanged, this, &EditorWindow::handleTextChanged);
 }
 

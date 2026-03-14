@@ -7,18 +7,16 @@
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
+    friend class LineNumberArea;
 public:
     explicit CodeEditor(QWidget *parent = nullptr);
-
-    int lineNumberAreaWidth();
+private: 
+    int lineNumberAreaWidth() const;
     void updateLineNumberAreaWidth(int newBlockCount);
-    void updateLineNumberArea(const QRect &rect, int dy);
+
     void highlightCurrentLine();
-
     void resizeEvent(QResizeEvent *event) override;
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
 
-private:
     QWidget *lineNumberArea;
 };
 

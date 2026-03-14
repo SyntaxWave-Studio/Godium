@@ -1,14 +1,52 @@
 #include "line_number_area.h"
 #include "code_editor.h"
 
-LineNumberArea::LineNumberArea(CodeEditor *editor) : QWidget(editor), m_editor(editor) { }
+#include <QPainter>
 
-QSize LineNumberArea::sizeHint() const
+LineNumberArea::LineNumberArea(CodeEditor *editor) : QWidget(editor), m_editor(editor) 
 {
-    return QSize(m_editor->lineNumberAreaWidth(), 0);
+    setFont(m_editor->font());
+    connect(m_editor, &CodeEditor::updateRequest, this, &LineNumberArea::updateLineNumberArea);
+}
+
+void LineNumberArea::updateLineNumberArea(const QRect &rect, int dy)
+{
+    if (dy)
+        scroll(0, dy);
+    else
+        update(0, m_editor->rect().y(), width(), m_editor->rect().height());
 }
 
 void LineNumberArea::paintEvent(QPaintEvent *event)
 {
-    m_editor->lineNumberAreaPaintEvent(event);
+    QPainter painter(this);
+    painter.fillRect(event->rect(), QColor("#1e1e1e"));
+
+    QTextBlock block = m_editor->firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    int top = qRound(m_editor->blockBoundingGeometry(block).translated(m_editor->contentOffset()).top());
+    int bottom = top + qRound(m_editor->blockBoundingRect(block).height());
+    int cursorBlockNumber = m_editor->textCursor().blockNumber();
+
+    while (block.isValid() && top <= event->rect().bottom())
+    {
+        if (block.isVisible() && bottom >= event->rect().top())
+        {
+            if (blockNumber == cursorBlockNumber)
+            {
+                painter.fillRect(0, top, width(), bottom - top, QColor("#2d2d2d"));
+                painter.setPen(QColor("#ffffff"));
+            }
+            else
+            {
+                painter.setPen(QColor("#858585"));
+            }
+
+            painter.drawText(0, top, width() - 5, bottom - top, Qt::AlignRight | Qt::AlignVCenter, QString::number(blockNumber + 1));
+        }
+        block = block.next();
+        top = bottom;
+        bottom = top + qRound(m_editor->blockBoundingRect(block).height());
+        blockNumber++;
+    }
 }
