@@ -30,7 +30,7 @@ int CodeEditor::lineNumberAreaWidth() const
         max /= 10;
         digits++;
     }
-    return 20 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+    return 10 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int)

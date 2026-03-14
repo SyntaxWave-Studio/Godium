@@ -20,10 +20,8 @@ void LineNumberArea::updateLineNumberArea(const QRect &rect, int dy)
 void LineNumberArea::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    // 1. Фон панели (чуть темнее основного, чтобы отделить слои)
     painter.fillRect(event->rect(), QColor("#181818"));
 
-    // 2. Вертикальная линия-разделитель (справа)
     painter.setPen(QColor("#333333"));
     painter.drawLine(width() - 1, 0, width() - 1, height());
 
@@ -38,7 +36,7 @@ void LineNumberArea::paintEvent(QPaintEvent *event)
         if (block.isVisible() && bottom >= event->rect().top())
         {
             painter.setPen(QColor("#858585"));
-            painter.drawText(0, top, width() - 10, bottom - top, Qt::AlignRight | Qt::AlignTop, QString::number(blockNumber + 1));
+            painter.drawText(0, top, width() - 5, bottom - top, Qt::AlignRight | Qt::AlignTop, QString::number(blockNumber + 1));
         }
         block = block.next();
         top = bottom;
