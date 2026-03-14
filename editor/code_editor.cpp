@@ -11,6 +11,9 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     viewport()->setAcceptDrops(false);
     document()->setDocumentMargin(0);
 
+    setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
