@@ -1,7 +1,7 @@
 #ifndef WINDOWFACTORY_H
 #define WINDOWFACTORY_H
 
-class VirtualWindow;
+#include "virtual_window.h"
 
 class WindowFactory
 {
