@@ -201,28 +201,30 @@ void VirtualGroup::cleanupStructure(QSplitter *splitter)
 
 void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->hasFormat("application/x-virtualwindow-ptr") || e->mimeData()->hasUrls())
-        e->acceptProposedAction();
-    else
+    const QMimeData *mime = e->mimeData();
+    if (mime->hasFormat("application/x-virtualwindow-ptr") || mime->hasUrls())
     {
-        e->ignore();
-        preview->hide();
+        e->acceptProposedAction();
+        return;
     }
+
+    e->ignore();
+    preview->hide();
 }
 
 void VirtualGroup::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (e->mimeData()->hasFormat("application/x-virtualwindow-ptr") || e->mimeData()->hasUrls())
+    const QMimeData *mime = e->mimeData();
+    if (mime->hasFormat("application/x-virtualwindow-ptr") || mime->hasUrls())
     {
         e->acceptProposedAction();
         preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
         preview->show();
+        return;
     }
-    else
-    {
-        e->ignore();
-        preview->hide();
-    }
+
+    e->ignore();
+    preview->hide();
 }
 
 void VirtualGroup::dragLeaveEvent(QDragLeaveEvent *e)
@@ -240,12 +242,6 @@ void VirtualGroup::dropEvent(QDropEvent *e)
     {
         quintptr ptr = mime->data("application/x-virtualwindow-ptr").toULongLong();
         VirtualWindow *window = reinterpret_cast<VirtualWindow *>(ptr);
-
-        if (!window)
-        {
-            e->ignore();
-            return;
-        }
 
         int zone = determineDropZone(e->position().toPoint());
 
