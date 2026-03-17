@@ -268,16 +268,40 @@ void VirtualGroup::dropEvent(QDropEvent *e)
         QPoint pos = e->position().toPoint();
         int zone = determineDropZone(pos);
 
-        for (const QUrl &url : urls)
+        VirtualWindow *(*createWindowSafe)(const QUrl &) = [](const QUrl &url) -> VirtualWindow *
         {
-            VirtualWindow *newWin = WindowFactory::createWindowFromUrl(url);
-            if (!newWin)
-            {
+            VirtualWindow *window = WindowFactory::createWindowFromUrl(url);
+            if (!window)
                 qWarning() << "WindowFactory failed to create a window for path:" << url.toLocalFile();
-                continue;
-            }
+            return window;
+        };
 
-            handleDrop(zone, newWin, newWin->windowTitle());
+        VirtualGroup *targetGroup = nullptr;
+        int startIndex = 0;
+
+        for (; startIndex < urls.size(); ++startIndex)
+        {
+            VirtualWindow *newWin = createWindowSafe(urls[startIndex]);
+            if (!newWin)
+                continue;
+
+            targetGroup = handleDrop(zone, newWin, newWin->windowTitle());
+            break;
+        }
+
+        if (!targetGroup)
+        {
+            e->ignore();
+            return;
+        }
+
+        for (int i = startIndex + 1; i < urls.size(); ++i)
+        {
+            VirtualWindow *newWin = createWindowSafe(urls[startIndex]);
+            if (!newWin)
+                continue;
+
+            targetGroup->addWindow(newWin, newWin->windowTitle());
         }
 
         e->setDropAction(Qt::CopyAction);
@@ -321,29 +345,25 @@ int VirtualGroup::determineDropZone(const QPoint &pos) const
     return ZoneCenter;
 }
 
-void VirtualGroup::handleDrop(int zone, VirtualWindow *window, const QString &title)
+VirtualGroup *VirtualGroup::handleDrop(int zone, VirtualWindow *window, const QString &title)
 {
     switch (zone)
     {
     case ZoneLeft:
-        splitWindow(Qt::Horizontal, true, window, title);
-        break;
+        return splitWindow(Qt::Horizontal, true, window, title);
     case ZoneRight:
-        splitWindow(Qt::Horizontal, false, window, title);
-        break;
+        return splitWindow(Qt::Horizontal, false, window, title);
     case ZoneTop:
-        splitWindow(Qt::Vertical, true, window, title);
-        break;
+        return splitWindow(Qt::Vertical, true, window, title);
     case ZoneBottom:
-        splitWindow(Qt::Vertical, false, window, title);
-        break;
+        return splitWindow(Qt::Vertical, false, window, title);
     default:
         addWindow(window, title);
-        break;
+        return this;
     }
 }
 
-void VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title)
+VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title)
 {
     QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
     VirtualGroup *newGroup = new VirtualGroup();
@@ -352,7 +372,7 @@ void VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, V
     if (!parentSplitter)
     {
         addWindow(window, title);
-        return;
+        return this;
     }
 
     int idx = parentSplitter->indexOf(this);
@@ -389,4 +409,6 @@ void VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, V
         newSplitter->setSizes({currentSpace / 2, currentSpace / 2});
         parentSplitter->setSizes(parentSizes);
     }
+
+    return newGroup;
 }

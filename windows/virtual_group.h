@@ -50,8 +50,8 @@ private:
     QRect calculatePreviewRect(const QPoint &pos) const;
     int determineDropZone(const QPoint &pos) const;
 
-    void handleDrop(int zone, VirtualWindow *window, const QString &title);
-    void splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title);
+    VirtualGroup* handleDrop(int zone, VirtualWindow *window, const QString &title);
+    VirtualGroup* splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title);
 };
 
 #endif
