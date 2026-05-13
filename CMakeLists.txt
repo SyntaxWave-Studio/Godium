@@ -30,3 +30,8 @@ endforeach()
 target_include_directories(GodiumIDE PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(GodiumIDE PRIVATE Qt6::Widgets)
+
+if(NOT MSVC)
+    target_compile_options(GodiumIDE PRIVATE -Os -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections -fvisibility=hidden)
+    target_link_options(GodiumIDE PRIVATE -Wl,--gc-sections -Wl,-as-needed -Wl,--strip-all)
+endif()
