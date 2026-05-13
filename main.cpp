@@ -8,8 +8,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    a.setApplicationName("GodiumIDE");
-    a.setApplicationDisplayName("GodiumIDE");
+    a.setApplicationName("Godium");
+    a.setApplicationDisplayName("Godium");
     a.setOrganizationName("SyntaxWaveStudio");
 
     a.setQuitOnLastWindowClosed(true);

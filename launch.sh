@@ -6,4 +6,4 @@ PROJECT_ROOT=$(pwd)
 
 echo "Launching linux binary"
 cd build/linux
-exec ./GodiumIDE
+exec ./Godium

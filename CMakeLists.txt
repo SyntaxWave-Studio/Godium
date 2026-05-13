@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(GodiumIDE)
+project(Godium)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,19 +19,19 @@ foreach(FILE ${ALL_FILES})
     endif()
 endforeach()
 
-add_executable(GodiumIDE ${CLEAN_SOURCES})
+add_executable(Godium ${CLEAN_SOURCES})
 
 file(GLOB_RECURSE ALL_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_SOURCE_DIR}/*")
 foreach(dir ${ALL_DIRS})
     if(IS_DIRECTORY ${dir} AND NOT dir MATCHES "\\.git" AND NOT dir MATCHES "build")
-        target_include_directories(GodiumIDE PRIVATE ${dir})
+        target_include_directories(Godium PRIVATE ${dir})
     endif()
 endforeach()
-target_include_directories(GodiumIDE PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Godium PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(GodiumIDE PRIVATE Qt6::Widgets)
+target_link_libraries(Godium PRIVATE Qt6::Widgets)
 
 if(NOT MSVC)
-    target_compile_options(GodiumIDE PRIVATE -Os -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections -fvisibility=hidden)
-    target_link_options(GodiumIDE PRIVATE -Wl,--gc-sections -Wl,-as-needed -Wl,--strip-all)
+    target_compile_options(Godium PRIVATE -Os -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections -fvisibility=hidden)
+    target_link_options(Godium PRIVATE -Wl,--gc-sections -Wl,-as-needed -Wl,--strip-all)
 endif()
