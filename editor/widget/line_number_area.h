@@ -1,3 +1,6 @@
+#ifndef LINE_NUMBER_AREA_H
+#define LINE_NUMBER_AREA_H
+
 #include <QWidget>
 #include <QPainter>
 #include <QTextBlock>
@@ -15,3 +18,5 @@ public:
 private:
     void paintEvent(QPaintEvent *event) override;
 };
+
+#endif
