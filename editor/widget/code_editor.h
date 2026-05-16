@@ -1,23 +1,24 @@
 #ifndef CODE_EDITOR_H
 #define CODE_EDITOR_H
 
-#include <QPlainTextEdit>
+#include "line_number_area.h"
+
 #include <QWidget>
+#include <QPlainTextEdit>
 
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
-    friend class LineNumberArea;
+
 public:
     explicit CodeEditor(QWidget *parent = nullptr);
-private: 
-    int lineNumberAreaWidth() const;
-    void updateLineNumberAreaWidth(int newBlockCount);
-
+    
+private:
+    void syncLayout(); 
     void highlightCurrentLine();
     void resizeEvent(QResizeEvent *event) override;
 
-    QWidget *lineNumberArea;
+    LineNumberArea *lineNumberArea;
 };
 
 #endif

@@ -1,17 +1,17 @@
-#include "code_editor.h"
-
+#include <QWidget>
 #include <QPainter>
 #include <QTextBlock>
-
-class CodeEditor;
+#include <QPlainTextEdit>
 
 class LineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(CodeEditor *editor);
-private:
-    void updateLineNumberArea(const QRect &rect, int dy);
-    void paintEvent(QPaintEvent *event) override;
+    explicit LineNumberArea(QWidget *parent = nullptr);
 
-    CodeEditor *m_editor;
+    int calculateWidth(int blockCount) const;
+    void updateArea(const QRect &rect, int dy);
+    void updateGeometry(const QRect &rect);
+
+private:
+    void paintEvent(QPaintEvent *event) override;
 };

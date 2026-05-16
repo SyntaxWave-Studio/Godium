@@ -1,5 +1,4 @@
 #include "code_editor.h"
-#include "line_number_area.h"
 
 #include <QTextBlock>
 #include <QScrollBar>
@@ -15,10 +14,15 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     setLineWrapMode(QPlainTextEdit::WidgetWidth);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
+    connect(this, &CodeEditor::updateRequest, this, [this](const QRect &rect, int dy) {
+        lineNumberArea->updateArea(rect, dy);
+        if (rect.contains(viewport()->rect())) {
+            syncLayout();
+        } 
+    });
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
-    updateLineNumberAreaWidth(0);
+    syncLayout();
     highlightCurrentLine();
 
     setFrameStyle(QFrame::NoFrame);
@@ -33,21 +37,14 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     );
 }
 
-int CodeEditor::lineNumberAreaWidth() const
+void CodeEditor::syncLayout()
 {
-    int digits = 1;
-    int max = qMax(1, blockCount());
-    while (max >= 10)
-    {
-        max /= 10;
-        digits++;
-    }
-    return 10 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
-}
+    int areaWidth = lineNumberArea->calculateWidth(blockCount());
+    setViewportMargins(areaWidth + 3, 0, 3, 0);
 
-void CodeEditor::updateLineNumberAreaWidth(int)
-{
-    setViewportMargins(lineNumberAreaWidth() + 3, 0, 3, 0);
+    QRect cr = contentsRect();
+    QRect areaRect(cr.left(), cr.top(), areaWidth, cr.height());
+    lineNumberArea->updateGeometry(areaRect);
 }
 
 void CodeEditor::highlightCurrentLine()
@@ -69,8 +66,5 @@ void CodeEditor::highlightCurrentLine()
 void CodeEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
-    updateLineNumberAreaWidth(0);
-    
-    QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    syncLayout();
 }
