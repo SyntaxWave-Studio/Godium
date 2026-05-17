@@ -1,5 +1,6 @@
+#include "main_window.h" 
 #include "virtual_group.h"
-#include "main_window.h"
+#include "virtual_splitter.h"
 #include "window_factory.h"
 
 #include <QDrag>
@@ -12,6 +13,9 @@
 #include <QMainWindow>
 #include <QDebug>
 #include <QTabBar>
+#include <QBitmap>
+#include <QPainter>
+#include <QPainterPath>
 
 VirtualGroup::VirtualGroup(QWidget *parent) : QTabWidget(parent)
 {
@@ -23,6 +27,18 @@ VirtualGroup::VirtualGroup(QWidget *parent) : QTabWidget(parent)
     connect(this, &QTabWidget::tabCloseRequested, this, &VirtualGroup::handleClose);
 }
 
+void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
+{
+    addTab(window, title);
+    setCurrentWidget(window);
+
+    connect(window, &VirtualWindow::tabTitleChanged, this, [this, window](const QString &newTitle) {
+        int idx = indexOf(window);
+        if (idx != -1)
+            setTabText(idx, newTitle);
+    });
+}
+
 void VirtualGroup::setupUi()
 {
     setAcceptDrops(true);
@@ -31,13 +47,17 @@ void VirtualGroup::setupUi()
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMinimumSize(50, 50);
     setDocumentMode(true);
+
+    setUsesScrollButtons(true);
+    setUsesScrollButtons(false);
+    tabBar()->setElideMode(Qt::ElideRight);
 }
 
 void VirtualGroup::setupStyle()
 {
     setStyleSheet(
         "QTabWidget::pane { border: none; background: #1e1e1e; }"
-        "QTabBar { background: #181818; qproperty-drawBase: 0; left: 0px; margin-left: 0px; }"
+        "QTabBar { background: #181818; qproperty-drawBase: 0; }"
         "QTabBar::tab { background: #2d2d2d; color: #969696; padding: 4px 8px; margin: 0px; min-width: 80px; border-right: 1px solid #181818; }"
         "QTabBar::tab:first { margin-left: 0px; padding-left: 10px; }"
         "QTabBar::tab:selected { background: #1e1e1e; color: #ffffff; border-top: 1px solid #007acc; }"
@@ -53,16 +73,22 @@ void VirtualGroup::setupPreview()
     preview->setStyleSheet("background-color: rgba(0, 122, 204, 30); border: 1px solid #007acc;");
 }
 
-void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
+void VirtualGroup::resizeEvent(QResizeEvent *event)
 {
-    addTab(window, title);
-    setCurrentWidget(window);
+    QTabWidget::resizeEvent(event);
 
-    connect(window, &VirtualWindow::tabTitleChanged, this, [this, window](const QString &newTitle) {
-        int idx = indexOf(window);
-        if (idx != -1)
-            setTabText(idx, newTitle); 
-    });
+    QBitmap map(size());
+    map.fill(Qt::color0);
+
+    QPainter painter(&map);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setBrush(Qt::color1);
+    painter.setPen(Qt::NoPen);
+
+    painter.drawRoundedRect(rect(), 12, 12);
+    painter.end();
+
+    setMask(map);
 }
 
 void VirtualGroup::handleClose(int index)
@@ -363,6 +389,8 @@ VirtualGroup *VirtualGroup::handleDrop(int zone, VirtualWindow *window, const QS
     }
 }
 
+#include "virtual_splitter.h"
+
 VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title)
 {
     QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
@@ -389,11 +417,8 @@ VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insert
     }
     else
     {
-        QSplitter *newSplitter = new QSplitter(orientation);
-        newSplitter->setHandleWidth(1);
-        newSplitter->setStyleSheet("QSplitter::handle { background: #252526; }");
-
-        parentSplitter->replaceWidget(idx, newSplitter);
+        VirtualSplitter *newSplitter = new VirtualSplitter(orientation);
+        parentSplitter->replaceWidget(idx, newSplitter->container());
 
         if (insertBefore)
         {

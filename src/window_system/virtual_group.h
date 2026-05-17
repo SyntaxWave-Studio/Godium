@@ -25,13 +25,14 @@ public:
     explicit VirtualGroup(QWidget *parent = nullptr);
     void addWindow(VirtualWindow *window, const QString &title);
 
-private:
-    QPoint dragStartPos;
+private : QPoint dragStartPos;
     QRubberBand *preview;
 
     void setupUi();
     void setupStyle();
     void setupPreview();
+
+    void resizeEvent(QResizeEvent *event) override;
 
     void handleClose(int index);
     bool eventFilter(QObject *obj, QEvent *e) override;

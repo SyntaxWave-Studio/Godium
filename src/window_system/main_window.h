@@ -1,35 +1,37 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "virtual_splitter.h"
+
 #include <QMainWindow>
-#include <QSplitter>
 #include <QVBoxLayout>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent)
     {
-        setStyleSheet("QMainWindow { background: #1e1e1e; }");
+        setStyleSheet("QMainWindow { background: #0b0b0c; }");
         setAttribute(Qt::WA_DeleteOnClose);
 
         QWidget *central = new QWidget(this);
+
         QVBoxLayout *layout = new QVBoxLayout(central);
-        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setContentsMargins(6, 6, 6, 6);
+        layout->setSpacing(0);
 
-        mainSplitter = new QSplitter(Qt::Horizontal, central);
-        mainSplitter->setHandleWidth(1);
-        mainSplitter->setStyleSheet("QSplitter { border: none; } QSplitter::handle { background: #252526; }");
+        mainSplitter = new VirtualSplitter(Qt::Horizontal, central);
 
-        layout->addWidget(mainSplitter);
+        layout->addWidget(mainSplitter->container());
         setCentralWidget(central);
     }
 
-    QSplitter *splitter() const { return mainSplitter; }
+    VirtualSplitter *splitter() const { return mainSplitter; }
 
 private:
-    QSplitter *mainSplitter;
+    VirtualSplitter *mainSplitter;
 };
 
 #endif
