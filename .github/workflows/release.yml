@@ -1,0 +1,100 @@
+name: Multi-platform Build & Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+            artifact_name: Godium-Linux
+          - os: windows-latest
+            platform: windows
+            artifact_name: Godium-Windows.exe
+          - os: macOS-latest
+            platform: macos
+            artifact_name: Godium-Mac
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.x.x'
+          modules: 'qtbase'
+          cache: true
+
+      - name: Install Linux Dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev
+
+      - name: Configure CMake
+        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Application
+        run: cmake --build build --config Release
+
+      - name: Prepare Artifact (Linux)
+        if: matrix.platform == 'linux'
+        run: cp build/Godium build/${{ matrix.artifact_name }}
+
+      - name: Prepare Artifact (Windows)
+        if: matrix.platform == 'windows'
+        run: Copy-Item build\Release\Godium.exe build\${{ matrix.artifact_name }}
+
+      - name: Prepare Artifact (macOS)
+        if: matrix.platform == 'macos'
+        run: cp build/Godium build/${{ matrix.artifact_name }}
+
+      - name: Upload Artifact to Workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-binary
+          path: build/${{ matrix.artifact_name }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten directory structure
+        run: |
+          mkdir release_assets
+          find artifacts -type f -exec cp {} release_assets/ \;
+          ls -R release_assets
+
+      - name: Generate Release Tag
+        id: tag
+        run: echo "release_tag=v$(date +'%Y.%m.%d-%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create Automated Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          name: Release ${{ steps.tag.outputs.release_tag }}
+          draft: false
+          prerelease: false
+          files: release_assets/*
