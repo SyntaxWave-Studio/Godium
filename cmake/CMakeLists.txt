@@ -24,7 +24,14 @@ target_include_directories(Godium PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src" $
 
 target_link_libraries(Godium PRIVATE Qt6::Widgets)
 
-if(NOT MSVC)
+if(WIN32)
+    if(MSVC)
+        target_compile_options(Godium PRIVATE /O1 /GR-)
+    endif()
+elseif(APPLE)
+    target_compile_options(Godium PRIVATE -Os -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections -fvisibility=hidden)
+    target_link_options(Godium PRIVATE -Wl,-dead_strip)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_options(Godium PRIVATE -Os -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections -fvisibility=hidden)
     target_link_options(Godium PRIVATE -Wl,--gc-sections -Wl,-as-needed)
 endif()
