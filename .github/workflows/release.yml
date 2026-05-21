@@ -30,18 +30,24 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install Qt6
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.x.x'
-          modules: 'qtbase'
-          cache: true
-
-      - name: Install Linux Dependencies
+      - name: Install Qt6 (Linux)
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev
+          sudo apt-get install -y qt6-base-dev qt6-base-private-dev libgl1-mesa-dev
+
+      - name: Install Qt6 (macOS)
+        if: matrix.platform == 'macos'
+        run: |
+          brew update
+          brew install qt6
+          echo "CMAKE_PREFIX_PATH=$(brew --prefix qt6)" >> $GITHUB_ENV
+
+      - name: Install Qt6 (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          vcpkg install qtbase:x64-windows
+          echo "CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
@@ -71,9 +77,6 @@ jobs:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -84,7 +87,6 @@ jobs:
         run: |
           mkdir release_assets
           find artifacts -type f -exec cp {} release_assets/ \;
-          ls -R release_assets
 
       - name: Generate Release Tag
         id: tag
