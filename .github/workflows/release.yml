@@ -27,7 +27,15 @@ jobs:
             artifact: Godium-Mac
 
     steps:
+      # --- 1) PREPARE ---
       - uses: actions/checkout@v4
+
+      - if: matrix.platform == 'windows'
+        uses: actions/cache@v4
+        with:
+          path: C:/vcpkg/installed
+          key: vcpkg-${{ runner.os }}-qtbase-full-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: vcpkg-${{ runner.os }}-qtbase-full-
 
       - if: matrix.platform == 'linux'
         run: |
@@ -45,6 +53,7 @@ jobs:
           echo "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
         shell: pwsh
 
+      # --- 2) BUILD ---
       - run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - run: cmake --build build --config Release --parallel
