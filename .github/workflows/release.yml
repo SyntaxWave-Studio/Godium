@@ -48,23 +48,30 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$(brew --prefix qt6)" >> $GITHUB_ENV
 
       - if: matrix.platform == 'windows'
-        run: |
-          vcpkg install qtbase:x64-windows
-          echo "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
+        run: vcpkg install qtbase:x64-windows
         shell: pwsh
 
       # --- 2) BUILD ---
-      - run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - if: matrix.platform == 'linux'
+        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - if: matrix.platform == 'macos'
+        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - if: matrix.platform == 'windows'
+        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - run: cmake --build build --config Release --parallel
 
-      - run: |
-          if [ "${{ matrix.platform }}" = "windows" ]; then
-            cp build/Release/Godium.exe build/${{ matrix.artifact }}
-          else
-            cp build/Godium build/${{ matrix.artifact }}
-          fi
-        shell: bash
+      - if: matrix.platform == 'linux'
+        run: cp build/Godium build/${{ matrix.artifact }}
+
+      - if: matrix.platform == 'macos'
+        run: cp build/Godium build/${{ matrix.artifact }}
+
+      - if: matrix.platform == 'windows'
+        run: Copy-Item build\Release\Godium.exe build\${{ matrix.artifact }}
+        shell: pwsh
 
       - uses: actions/upload-artifact@v4
         with:
