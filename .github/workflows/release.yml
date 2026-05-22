@@ -18,22 +18,22 @@ jobs:
         include:
           - os: ubuntu-24.04
             platform: linux
-            artifact: Godium-Linux
+            archive_name: Godium-Linux.tar.gz
           - os: windows-latest
             platform: windows
-            artifact: Godium-Windows.exe
+            archive_name: Godium-Windows.zip
           - os: macOS-latest
             platform: macos
-            artifact: Godium-Mac
+            archive_name: Godium-Mac.zip
 
     steps:
-      # --- 1) PREPARE ---
+      # 1) PREPARE
       - uses: actions/checkout@v4
 
       - if: matrix.platform == 'windows'
         uses: actions/cache@v4
         with:
-          path: C:/vcpkg/installed
+          path: ${{ github.workspace }}/vcpkg_cache
           key: vcpkg-${{ runner.os }}-qtbase-full-${{ hashFiles('**/CMakeLists.txt') }}
           restore-keys: vcpkg-${{ runner.os }}-qtbase-full-
 
@@ -48,10 +48,12 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$(brew --prefix qt6)" >> $GITHUB_ENV
 
       - if: matrix.platform == 'windows'
-        run: vcpkg install qtbase:x64-windows
+        run: |
+          vcpkg install qtbase:x64-windows --binarysource="clear;files,${{ github.workspace }}/vcpkg_cache,readwrite"
+          echo "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
         shell: pwsh
 
-      # --- 2) BUILD ---
+      # 2) BUILD
       - if: matrix.platform == 'linux'
         run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
 
@@ -63,20 +65,33 @@ jobs:
 
       - run: cmake --build build --config Release --parallel
 
+      # 3) SELF-CONTAINED PACKAGING
       - if: matrix.platform == 'linux'
-        run: cp build/Godium build/${{ matrix.artifact }}
+        run: |
+          mkdir dist
+          cp build/Godium dist/
+          tar -czvf build/${{ matrix.archive_name }} -C dist .
 
       - if: matrix.platform == 'macos'
-        run: cp build/Godium build/${{ matrix.artifact }}
+        run: |
+          mkdir dist
+          cp build/Godium dist/Godium
+          $(brew --prefix qt6)/bin/macdeployqt dist/Godium -verbose=1
+          ditto -c -k --sequential --keepParent dist build/${{ matrix.archive_name }}
 
       - if: matrix.platform == 'windows'
-        run: Copy-Item build\Release\Godium.exe build\${{ matrix.artifact }}
+        run: |
+          New-Item -ItemType Directory -Path dist
+          Copy-Item build\Release\Godium.exe dist\
+          $windeployqt = "C:\vcpkg\installed\x64-windows\tools\qt6\bin\windeployqt.exe"
+          & $windeployqt --release --no-compiler-runtime dist\Godium.exe
+          Compress-Archive -Path dist\* -DestinationPath build\${{ matrix.archive_name }}
         shell: pwsh
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-binary
-          path: build/${{ matrix.artifact }}
+          name: ${{ matrix.platform }}-archive
+          path: build/${{ matrix.archive_name }}
 
   release:
     name: Create GitHub Release
