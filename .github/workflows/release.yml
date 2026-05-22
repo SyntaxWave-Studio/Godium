@@ -22,91 +22,58 @@ jobs:
           - os: windows-latest
             platform: windows
             archive_name: Godium-Windows.zip
-          - os: macOS-latest
+          - os: macos-latest
             platform: macos
             archive_name: Godium-Mac.zip
 
     steps:
-      # 1) PREPARE
       - uses: actions/checkout@v4
 
-      - if: matrix.platform == 'windows'
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/vcpkg_cache
-          key: vcpkg-${{ runner.os }}-qtbase-full-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: vcpkg-${{ runner.os }}-qtbase-full-
+      - run: |
+          cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+        if: matrix.platform != 'windows'
 
-      - if: matrix.platform == 'linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qt6-base-dev libgl1-mesa-dev
-
-      - if: matrix.platform == 'macos'
-        run: |
-          brew install qt6
-          echo "CMAKE_PREFIX_PATH=$(brew --prefix qt6)" >> $GITHUB_ENV
-
-      - if: matrix.platform == 'windows'
-        run: |
-          vcpkg install qtbase:x64-windows --binarysource="clear;files,${{ github.workspace }}/vcpkg_cache,readwrite"
-          echo "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
-        shell: pwsh
-
-      # 2) BUILD
-      - if: matrix.platform == 'linux'
-        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - if: matrix.platform == 'macos'
-        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - if: matrix.platform == 'windows'
-        run: cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+      - run: |
+          cmake -S cmake -B build -DCMAKE_BUILD_TYPE=Release
+        if: matrix.platform == 'windows'
 
       - run: cmake --build build --config Release --parallel
 
-      # 3) SELF-CONTAINED PACKAGING
       - if: matrix.platform == 'linux'
         run: |
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
-          mkdir -p dist/usr/bin
-          cp build/Godium dist/usr/bin/
-          export QMAKE=/usr/lib/qt6/bin/qmake
-          ./linuxdeploy-x86_64.AppImage --appdir dist --plugin qt
+          sudo apt-get install -y patchelf
+          mkdir -p dist
+          cp build/Godium dist/
+          for lib in $(ldd build/Godium | grep '=>' | awk '{print $3}'); do
+            [ -f "$lib" ] && cp "$lib" dist/
+          done
+          for lib in dist/*.so*; do [ -f "$lib" ] && patchelf --set-rpath '$ORIGIN' "$lib"; done
+          patchelf --set-rpath '$ORIGIN' dist/Godium
           tar -czvf build/${{ matrix.archive_name }} -C dist .
 
       - if: matrix.platform == 'macos'
         run: |
           mkdir -p dist/Godium.app/Contents/MacOS
-          mkdir -p dist/Godium.app/Contents/Resources
-          
-          if [ -f "build/Godium" ]; then
-            cp build/Godium dist/Godium.app/Contents/MacOS/Godium
-          elif [ -f "build/src/Godium" ]; then
-            cp build/src/Godium dist/Godium.app/Contents/MacOS/Godium
-          elif [ -d "build/Godium.app" ]; then
-            rm -rf dist/Godium.app
-            cp -r build/Godium.app dist/
-          else
-            echo "Error: No Godium binary found"
-            exit 1
-          fi
-          
-          "$(brew --prefix qt6)/bin/macdeployqt" dist/Godium.app -always-overwrite
+          cp build/Godium dist/Godium.app/Contents/MacOS/ 2>/dev/null || cp build/src/Godium dist/Godium.app/Contents/MacOS/
           cd dist
+          for lib in $(otool -L Godium.app/Contents/MacOS/Godium | grep '/usr/local\|/opt/homebrew\|@rpath' | awk '{print $1}'); do
+            [ -f "$lib" ] && cp "$lib" Godium.app/Contents/MacOS/
+          done
           zip -r ../build/${{ matrix.archive_name }} Godium.app
         shell: bash
 
       - if: matrix.platform == 'windows'
         run: |
-          New-Item -ItemType Directory -Path dist
-          Copy-Item build\Release\Godium.exe dist\
-          $windeployqt = "C:\vcpkg\installed\x64-windows\tools\qt6\bin\windeployqt.exe"
-          & $windeployqt --release --no-compiler-runtime dist\Godium.exe
-          Compress-Archive -Path dist\* -DestinationPath build\${{ matrix.archive_name }}
+          New-Item dist -Force
+          Copy-Item build\Release\Godium.exe dist\ 2>$null; Copy-Item build\Godium.exe dist\ 2>$null
+          Copy-Item build\*.dll dist\ 2>$null
+          cd dist
+          foreach ($file in Get-ChildItem *.dll) {
+            $deps = & ldd $file.Name 2>$null | Select-String '=>' | ForEach-Object { $_.Line.Split('>')[-1].Trim().Split(' ')[0] }
+            foreach ($dep in $deps) { if (Test-Path $dep) { Copy-Item $dep . -Force } }
+          }
+          cd ..
+          Compress-Archive dist\* build\${{ matrix.archive_name }} -Force
         shell: pwsh
 
       - uses: actions/upload-artifact@v4
@@ -115,7 +82,7 @@ jobs:
           path: build/${{ matrix.archive_name }}
 
   release:
-    name: Create GitHub Release
+    name: Create Release
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -124,11 +91,7 @@ jobs:
           path: release_assets
           merge-multiple: true
 
-      - id: tag
-        run: echo "tag=v$(date +'%Y.%m.%d-%H%M%S')" >> $GITHUB_OUTPUT
-
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: Release ${{ steps.tag.outputs.tag }}
+          tag_name: v${{ github.run_number }}
           files: release_assets/*
