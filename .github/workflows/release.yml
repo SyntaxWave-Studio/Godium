@@ -68,15 +68,27 @@ jobs:
       # 3) SELF-CONTAINED PACKAGING
       - if: matrix.platform == 'linux'
         run: |
-          mkdir dist
-          cp build/Godium dist/
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+          mkdir -p dist/usr/bin
+          cp build/Godium dist/usr/bin/
+          export QMAKE=/usr/lib/qt6/bin/qmake
+          ./linuxdeploy-x86_64.AppImage --appdir dist --plugin qt
           tar -czvf build/${{ matrix.archive_name }} -C dist .
 
       - if: matrix.platform == 'macos'
         run: |
-          mkdir dist
-          cp build/Godium dist/
-          tar -czvf build/${{ matrix.archive_name }} -C dist .
+          mkdir -p dist
+          if [ -d "build/Godium.app" ]; then
+            cp -r build/Godium.app dist/
+          else
+            cp build/Godium dist/
+          fi
+          MACDEPLOYQT=$(brew --prefix qt6)/bin/macdeployqt
+          "$MACDEPLOYQT" dist/Godium.app -always-overwrite
+          cd dist
+          zip -r ../build/${{ matrix.archive_name }} Godium.app
+        shell: bash
 
       - if: matrix.platform == 'windows'
         run: |
