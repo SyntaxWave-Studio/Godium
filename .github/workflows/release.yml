@@ -75,9 +75,8 @@ jobs:
       - if: matrix.platform == 'macos'
         run: |
           mkdir dist
-          cp build/Godium dist/Godium
-          $(brew --prefix qt6)/bin/macdeployqt dist/Godium -verbose=1
-          ditto -c -k --sequential --keepParent dist build/${{ matrix.archive_name }}
+          cp build/Godium dist/
+          tar -czvf build/${{ matrix.archive_name }} -C dist .
 
       - if: matrix.platform == 'windows'
         run: |
