@@ -81,13 +81,16 @@ jobs:
           mkdir -p dist
           if [ -d "build/Godium.app" ]; then
             cp -r build/Godium.app dist/
-          else
+            "$(brew --prefix qt6)/bin/macdeployqt" dist/Godium.app -always-overwrite
+            cd dist
+            zip -r ../build/${{ matrix.archive_name }} Godium.app
+          elif [ -f "build/Godium" ]; then
             cp build/Godium dist/
+            tar -czvf build/${{ matrix.archive_name }} -C dist .
+          else
+            echo "Error: No Godium binary or .app found"
+            exit 1
           fi
-          MACDEPLOYQT=$(brew --prefix qt6)/bin/macdeployqt
-          "$MACDEPLOYQT" dist/Godium.app -always-overwrite
-          cd dist
-          zip -r ../build/${{ matrix.archive_name }} Godium.app
         shell: bash
 
       - if: matrix.platform == 'windows'
