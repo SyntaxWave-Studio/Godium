@@ -27,6 +27,7 @@ target_include_directories(Godium PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src
 target_link_libraries(Godium PRIVATE Qt6::Widgets)
 
 target_compile_options(Godium PRIVATE
+    -s   
     -O2
     -fno-exceptions
     -fno-rtti
