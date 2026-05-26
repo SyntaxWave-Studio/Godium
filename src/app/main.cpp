@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "editor_window.h"
 #include "virtual_group.h"
+#include "layout_window.h"
 
 #include <QApplication>
 

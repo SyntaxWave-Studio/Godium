@@ -2,6 +2,7 @@
 #include "virtual_group.h"
 #include "virtual_splitter.h"
 #include "window_factory.h"
+#include "layout_window.h"
 
 #include <QDrag>
 #include <QMimeData>
@@ -104,7 +105,7 @@ void VirtualGroup::handleClose(int index)
 
 bool VirtualGroup::eventFilter(QObject *obj, QEvent *e)
 {
-    if (obj == tabBar())
+    if (obj == tabBar() && qobject_cast<VirtualGroup *>(obj->parent()))
     {
         if (e->type() == QEvent::MouseButtonPress)
             dragStartPos = static_cast<QMouseEvent *>(e)->pos();
@@ -141,31 +142,29 @@ void VirtualGroup::startDrag(int idx)
 
     Qt::DropAction result = drag->exec(Qt::MoveAction);
     if (result == Qt::IgnoreAction)
-        createFloatingWindow(window, tabText(idx));
+    {
+        int realIdx = indexOf(window);
+        if (realIdx != -1)
+            removeTab(realIdx);
+
+        QString title = tabText(idx);
+
+            VirtualGroup *group = new VirtualGroup();
+        group->addWindow(window, title);
+
+        LayoutWindow *floatingWin = new LayoutWindow(group);
+
+        int baseSize = this->height();
+        int side = std::clamp(static_cast<int>(baseSize * 0.85), 500, 1200);
+
+        floatingWin->resize(side, side);
+        floatingWin->move(QCursor::pos() - QPoint(side / 2, 30));
+
+        floatingWin->setWindowTitle(title);
+        floatingWin->show();
+    }
 
     checkEmptyAndCleanup();
-}
-
-void VirtualGroup::createFloatingWindow(VirtualWindow *window, const QString &title)
-{
-    int realIdx = indexOf(window);
-    if (realIdx != -1)
-        removeTab(realIdx);
-
-    MainWindow *floatingMainWin = new MainWindow();
-    VirtualGroup *newGroup = new VirtualGroup();
-    newGroup->addWindow(window, title);
-
-    floatingMainWin->splitter()->addWidget(newGroup);
-
-    int baseSize = this->height();
-    int side = std::clamp(static_cast<int>(baseSize * 0.85), 500, 1200);
-
-    floatingMainWin->resize(side, side);
-    floatingMainWin->move(QCursor::pos() - QPoint(side / 2, 30));
-
-    floatingMainWin->setWindowTitle(title);
-    floatingMainWin->show();
 }
 
 void VirtualGroup::checkEmptyAndCleanup()
@@ -228,14 +227,24 @@ void VirtualGroup::cleanupStructure(QSplitter *splitter)
 void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
 {
     const QMimeData *mime = e->mimeData();
-    if (mime->hasFormat("application/x-virtualwindow-ptr") || mime->hasUrls())
+    if (!mime->hasFormat("application/x-virtualwindow-ptr") && !mime->hasUrls())
     {
-        e->acceptProposedAction();
+        e->ignore();
+        preview->hide();
         return;
     }
 
-    e->ignore();
-    preview->hide();
+    VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
+    if (!parentSplitter || !parentSplitter->allowDrop())
+    {
+        e->ignore();
+        preview->hide();
+        return;
+    }
+
+    e->acceptProposedAction();
+    preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
+    preview->show();
 }
 
 void VirtualGroup::dragMoveEvent(QDragMoveEvent *e)
@@ -393,7 +402,7 @@ VirtualGroup *VirtualGroup::handleDrop(int zone, VirtualWindow *window, const QS
 
 VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title)
 {
-    QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
+    VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
     VirtualGroup *newGroup = new VirtualGroup();
     newGroup->addWindow(window, title);
 
@@ -418,7 +427,7 @@ VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insert
     else
     {
         VirtualSplitter *newSplitter = new VirtualSplitter(orientation);
-        parentSplitter->replaceWidget(idx, newSplitter->container());
+        parentSplitter->replaceWidget(idx, newSplitter);
 
         if (insertBefore)
         {

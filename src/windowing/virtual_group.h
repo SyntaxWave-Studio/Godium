@@ -35,10 +35,9 @@ private : QPoint dragStartPos;
     void resizeEvent(QResizeEvent *event) override;
 
     void handleClose(int index);
+    
     bool eventFilter(QObject *obj, QEvent *e) override;
-
     void startDrag(int idx);
-    void createFloatingWindow(VirtualWindow *window, const QString &title);
 
     void checkEmptyAndCleanup();
     void cleanupStructure(QSplitter *splitter);

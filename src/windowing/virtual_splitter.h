@@ -18,7 +18,11 @@ public:
         );
     }
 
-    QWidget *container() const { return const_cast<VirtualSplitter *>(this); }
+    bool allowDrop() const { return m_allowDrop; }
+    void setAllowDrop(bool allow) { m_allowDrop = allow; }
+
+private:
+    bool m_allowDrop = true;
 };
 
 #endif

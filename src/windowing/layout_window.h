@@ -1,19 +1,20 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef LAYOUTWINDOW_H
+#define LAYOUTWINDOW_H
 
+#include "virtual_group.h"
 #include "virtual_splitter.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
 
-class MainWindow : public QMainWindow
+class LayoutWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent)
+    explicit LayoutWindow(VirtualGroup *virtualGroup, QWidget *parent = nullptr) : QMainWindow(parent)
     {
-        setStyleSheet("QMainWindow { background: #0b0b0c; }");
+        setStyleSheet("QLayoutWindow { background: #0b0b0c; }");
         setAttribute(Qt::WA_DeleteOnClose);
 
         QWidget *central = new QWidget(this);
@@ -24,8 +25,10 @@ public:
 
         mainSplitter = new VirtualSplitter(Qt::Horizontal, central);
 
-        layout->addWidget(mainSplitter->container());
+        layout->addWidget(mainSplitter);
         setCentralWidget(central);
+
+        mainSplitter->addWidget(virtualGroup);
     }
 
     VirtualSplitter *splitter() const { return mainSplitter; }
