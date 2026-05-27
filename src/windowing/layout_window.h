@@ -12,29 +12,14 @@ class LayoutWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit LayoutWindow(VirtualGroup *virtualGroup, QWidget *parent = nullptr) : QMainWindow(parent)
-    {
-        setStyleSheet("QLayoutWindow { background: #0b0b0c; }");
-        setAttribute(Qt::WA_DeleteOnClose);
+    explicit LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent = nullptr);
 
-        QWidget *central = new QWidget(this);
+    VirtualSplitter *groupSplitter() const { return m_groupSplitter; }
 
-        QVBoxLayout *layout = new QVBoxLayout(central);
-        layout->setContentsMargins(6, 6, 6, 6);
-        layout->setSpacing(0);
-
-        mainSplitter = new VirtualSplitter(Qt::Horizontal, central);
-
-        layout->addWidget(mainSplitter);
-        setCentralWidget(central);
-
-        mainSplitter->addWidget(virtualGroup);
-    }
-
-    VirtualSplitter *splitter() const { return mainSplitter; }
-
-private:
-    VirtualSplitter *mainSplitter;
+protected:
+    QWidget *m_central;
+    QVBoxLayout *m_layout;
+    VirtualSplitter *m_groupSplitter;
 };
 
 #endif

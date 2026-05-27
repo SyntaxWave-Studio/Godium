@@ -1,4 +1,3 @@
-#include "main_window.h" 
 #include "virtual_group.h"
 #include "virtual_splitter.h"
 #include "window_factory.h"
@@ -6,31 +5,30 @@
 
 #include <QDrag>
 #include <QMimeData>
-#include <QTimer>
-#include <QPointer>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QCursor>
-#include <QMainWindow>
 #include <QDebug>
 #include <QTabBar>
 #include <QBitmap>
 #include <QPainter>
-#include <QPainterPath>
 
-VirtualGroup::VirtualGroup(QWidget *parent) : QTabWidget(parent)
+VirtualGroup::VirtualGroup(VirtualWindow *virtualWindow, QWidget *parent) : QTabWidget(parent)
 {
     setupUi();
     setupStyle();
     setupPreview();
     tabBar()->installEventFilter(this);
 
-    connect(this, &QTabWidget::tabCloseRequested, this, &VirtualGroup::handleClose);
+    if (virtualWindow)
+        addWindow(virtualWindow);
+
+    connect(this, &QTabWidget::tabCloseRequested, this, &VirtualGroup::onTabClosed);
 }
 
-void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
+void VirtualGroup::addWindow(VirtualWindow *window)
 {
-    addTab(window, title);
+    addTab(window, window->tabTitle());
     setCurrentWidget(window);
 
     connect(window, &VirtualWindow::tabTitleChanged, this, [this, window](const QString &newTitle) {
@@ -38,6 +36,18 @@ void VirtualGroup::addWindow(VirtualWindow *window, const QString &title)
         if (idx != -1)
             setTabText(idx, newTitle);
     });
+}
+
+void VirtualGroup::onTabClosed(int index)
+{
+    QWidget *w = widget(index);
+    if (w)
+    {
+        removeTab(index);
+        w->deleteLater();
+    }
+
+    VirtualSplitter::cleanupStructure(this);
 }
 
 void VirtualGroup::setupUi()
@@ -68,7 +78,7 @@ void VirtualGroup::setupStyle()
 
 void VirtualGroup::setupPreview()
 {
-    preview = new QRubberBand(QRubberBand::Rectangle, this);
+    preview = new QRubberBand(QRubberBand::Rectangle, window());
     preview->setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
     preview->setAttribute(Qt::WA_TransparentForMouseEvents);
     preview->setStyleSheet("background-color: rgba(0, 122, 204, 30); border: 1px solid #007acc;");
@@ -90,17 +100,6 @@ void VirtualGroup::resizeEvent(QResizeEvent *event)
     painter.end();
 
     setMask(map);
-}
-
-void VirtualGroup::handleClose(int index)
-{
-    QWidget *w = widget(index);
-    if (w)
-    {
-        removeTab(index);
-        w->deleteLater();
-    }
-    checkEmptyAndCleanup();
 }
 
 bool VirtualGroup::eventFilter(QObject *obj, QEvent *e)
@@ -149,10 +148,7 @@ void VirtualGroup::startDrag(int idx)
 
         QString title = tabText(idx);
 
-            VirtualGroup *group = new VirtualGroup();
-        group->addWindow(window, title);
-
-        LayoutWindow *floatingWin = new LayoutWindow(group);
+        LayoutWindow *floatingWin = new LayoutWindow(window);
 
         int baseSize = this->height();
         int side = std::clamp(static_cast<int>(baseSize * 0.85), 500, 1200);
@@ -164,64 +160,7 @@ void VirtualGroup::startDrag(int idx)
         floatingWin->show();
     }
 
-    checkEmptyAndCleanup();
-}
-
-void VirtualGroup::checkEmptyAndCleanup()
-{
-    if (count() > 0)
-        return;
-
-    QWidget *topLevel = window();
-    QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
-
-    setParent(nullptr);
-    this->deleteLater();
-
-    if (parentSplitter)
-        cleanupStructure(parentSplitter);
-
-    QPointer<QWidget> safeTopLevel = topLevel;
-    QTimer::singleShot(0, [safeTopLevel]() {
-        if (!safeTopLevel)
-            return;
-
-        QList<VirtualGroup *> remainingGroups = safeTopLevel->findChildren<VirtualGroup *>();
-
-        if (remainingGroups.isEmpty())
-            safeTopLevel->close();
-    });
-}
-
-void VirtualGroup::cleanupStructure(QSplitter *splitter)
-{
-    if (!splitter)
-        return;
-
-    QSplitter *parentSplitter = qobject_cast<QSplitter *>(splitter->parentWidget());
-
-    if (splitter->count() == 0)
-    {
-        QWidget *topLevel = splitter->window();
-        splitter->deleteLater();
-
-        if (parentSplitter)
-            cleanupStructure(parentSplitter);
-        else if (topLevel && qobject_cast<QMainWindow *>(topLevel))
-        {
-            int groupCount = topLevel->findChildren<VirtualGroup *>().count();
-            if (groupCount == 0 && QApplication::topLevelWidgets().count() > 1)
-                topLevel->close();
-        }
-    }
-    else if (splitter->count() == 1 && parentSplitter)
-    {
-        QWidget *child = splitter->widget(0);
-        int idx = parentSplitter->indexOf(splitter);
-        parentSplitter->insertWidget(idx, child);
-        splitter->deleteLater();
-        cleanupStructure(parentSplitter);
-    }
+    VirtualSplitter::cleanupStructure(this);
 }
 
 void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
@@ -252,6 +191,14 @@ void VirtualGroup::dragMoveEvent(QDragMoveEvent *e)
     const QMimeData *mime = e->mimeData();
     if (mime->hasFormat("application/x-virtualwindow-ptr") || mime->hasUrls())
     {
+        VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
+        if (!parentSplitter || !parentSplitter->allowDrop())
+        {
+            e->ignore();
+            preview->hide();
+            return;
+        }
+
         e->acceptProposedAction();
         preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
         preview->show();
@@ -292,7 +239,7 @@ void VirtualGroup::dropEvent(QDropEvent *e)
             }
         }
 
-        handleDrop(zone, window, window->windowTitle());
+        handleDrop(zone, window);
 
         e->setDropAction(Qt::MoveAction);
         e->accept();
@@ -320,7 +267,7 @@ void VirtualGroup::dropEvent(QDropEvent *e)
             if (!newWin)
                 continue;
 
-            targetGroup = handleDrop(zone, newWin, newWin->windowTitle());
+            targetGroup = handleDrop(zone, newWin);
             break;
         }
 
@@ -336,7 +283,7 @@ void VirtualGroup::dropEvent(QDropEvent *e)
             if (!newWin)
                 continue;
 
-            targetGroup->addWindow(newWin, newWin->windowTitle());
+            targetGroup->addWindow(newWin);
         }
 
         e->setDropAction(Qt::CopyAction);
@@ -380,35 +327,32 @@ int VirtualGroup::determineDropZone(const QPoint &pos) const
     return ZoneCenter;
 }
 
-VirtualGroup *VirtualGroup::handleDrop(int zone, VirtualWindow *window, const QString &title)
+VirtualGroup *VirtualGroup::handleDrop(int zone, VirtualWindow *window)
 {
     switch (zone)
     {
     case ZoneLeft:
-        return splitWindow(Qt::Horizontal, true, window, title);
+        return splitWindow(Qt::Horizontal, true, window);
     case ZoneRight:
-        return splitWindow(Qt::Horizontal, false, window, title);
+        return splitWindow(Qt::Horizontal, false, window);
     case ZoneTop:
-        return splitWindow(Qt::Vertical, true, window, title);
+        return splitWindow(Qt::Vertical, true, window);
     case ZoneBottom:
-        return splitWindow(Qt::Vertical, false, window, title);
+        return splitWindow(Qt::Vertical, false, window);
     default:
-        addWindow(window, title);
+        addWindow(window);
         return this;
     }
 }
 
-#include "virtual_splitter.h"
-
-VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title)
+VirtualGroup *VirtualGroup::splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window)
 {
     VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
-    VirtualGroup *newGroup = new VirtualGroup();
-    newGroup->addWindow(window, title);
+    VirtualGroup *newGroup = new VirtualGroup(window);
 
     if (!parentSplitter)
     {
-        addWindow(window, title);
+        addWindow(window);
         return this;
     }
 

@@ -21,9 +21,10 @@ enum DropZone
 class VirtualGroup : public QTabWidget
 {
     Q_OBJECT
+    
 public:
-    explicit VirtualGroup(QWidget *parent = nullptr);
-    void addWindow(VirtualWindow *window, const QString &title);
+    explicit VirtualGroup(VirtualWindow *virtualWindow, QWidget *parent = nullptr);
+    void addWindow(VirtualWindow *window);
 
 private : QPoint dragStartPos;
     QRubberBand *preview;
@@ -33,15 +34,9 @@ private : QPoint dragStartPos;
     void setupPreview();
 
     void resizeEvent(QResizeEvent *event) override;
-
-    void handleClose(int index);
-    
     bool eventFilter(QObject *obj, QEvent *e) override;
+
     void startDrag(int idx);
-
-    void checkEmptyAndCleanup();
-    void cleanupStructure(QSplitter *splitter);
-
     void dragEnterEvent(QDragEnterEvent *e) override;
     void dragMoveEvent(QDragMoveEvent *e) override;
     void dragLeaveEvent(QDragLeaveEvent *e) override;
@@ -50,8 +45,11 @@ private : QPoint dragStartPos;
     QRect calculatePreviewRect(const QPoint &pos) const;
     int determineDropZone(const QPoint &pos) const;
 
-    VirtualGroup* handleDrop(int zone, VirtualWindow *window, const QString &title);
-    VirtualGroup* splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window, const QString &title);
+    VirtualGroup* handleDrop(int zone, VirtualWindow *window);
+    VirtualGroup* splitWindow(Qt::Orientation orientation, bool insertBefore, VirtualWindow *window);
+
+private slots:
+    void onTabClosed(int index);
 };
 
 #endif

@@ -1,7 +1,5 @@
 #include "main_window.h"
 #include "editor_window.h"
-#include "virtual_group.h"
-#include "layout_window.h"
 
 #include <QApplication>
 
@@ -24,10 +22,8 @@ int main(int argc, char *argv[])
         EditorWindow *editor = new EditorWindow();
         editor->initializeContent(fileName);
 
-        VirtualGroup *group = new VirtualGroup();
-        group->addWindow(editor, editor->windowTitle());
-
-        w->splitter()->addWidget(group);
+        VirtualGroup *group = new VirtualGroup(editor);
+        w->groupSplitter()->addWidget(group);
     }
 
     w->showNormal();
