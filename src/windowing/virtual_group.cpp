@@ -150,7 +150,7 @@ void VirtualGroup::startDrag(int idx)
 
         LayoutWindow *floatingWin = new LayoutWindow(window);
 
-        int baseSize = this->height();
+        int baseSize = height();
         int side = std::clamp(static_cast<int>(baseSize * 0.85), 500, 1200);
 
         floatingWin->resize(side, side);

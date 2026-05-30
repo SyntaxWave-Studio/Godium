@@ -3,6 +3,7 @@
 
 #include "virtual_window.h"
 #include "layout_window.h"
+#include "control_bar.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -17,7 +18,9 @@ public:
     void setDockWindow(VirtualWindow *dock);
 
 protected:
-    VirtualSplitter *m_mainSplitter;
+    ControlBar *m_menuBar;
+    VirtualSplitter *m_menuSplitter;
+    VirtualSplitter *m_bodySplitter;
     VirtualWindow *m_dockPanel = nullptr;
 };
 

@@ -15,9 +15,15 @@ qt_standard_project_setup()
 file(GLOB_RECURSE SOURCES
     "../../src/*.cpp"
     "../../src/*.h"
+    "../../src/config/*.cpp"
 )
 
 qt_add_executable(Godium ${SOURCES})
+
+if(NOT DEFINED CONFIG_PATH)
+    set(CONFIG_PATH "config")
+endif()
+target_compile_definitions(Godium PRIVATE CONFIG_PATH="${CONFIG_PATH}")
 
 file(GLOB_RECURSE ALL_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*")
 list(FILTER ALL_DIRS EXCLUDE REGEX "\\.[a-zA-Z0-9]+$")
@@ -28,7 +34,7 @@ target_link_libraries(Godium PRIVATE Qt6::Widgets)
 
 target_compile_options(Godium PRIVATE
     -s   
-    -O2
+    -O3
     -fno-exceptions
     -fno-rtti
     -ffunction-sections
