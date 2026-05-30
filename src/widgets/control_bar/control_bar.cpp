@@ -4,8 +4,26 @@ ControlBar::ControlBar(QWidget *parent) : QFrame(parent)
 {
     setFixedHeight(30);
     setAttribute(Qt::WA_StyledBackground);
+
+    setupUi();
     setupStyle();
 
+    connect(m_minimizeBtn, &QPushButton::clicked, this, [this]() {
+        if (QWidget *win = window()) win->showMinimized(); 
+    });
+
+    connect(m_maximizeBtn, &QPushButton::clicked, this, [this]() {
+        if (QWidget *win = window())
+            win->isMaximized() ? win->showNormal() : win->showMaximized(); 
+    });
+
+    connect(m_closeBtn, &QPushButton::clicked, this, [this]() {
+        if (QWidget *win = window()) win->close(); 
+    });
+}
+
+void ControlBar::setupUi()
+{
     m_layout = new QHBoxLayout(this);
     m_layout->setContentsMargins(6, 0, 6, 0);
     m_layout->setSpacing(4);
@@ -34,19 +52,6 @@ ControlBar::ControlBar(QWidget *parent) : QFrame(parent)
     m_rightLayout->addWidget(m_minimizeBtn);
     m_rightLayout->addWidget(m_maximizeBtn);
     m_rightLayout->addWidget(m_closeBtn);
-
-    connect(m_minimizeBtn, &QPushButton::clicked, this, [this]() {
-        if (QWidget *win = window()) win->showMinimized(); 
-    });
-
-    connect(m_maximizeBtn, &QPushButton::clicked, this, [this]() {
-        if (QWidget *win = window())
-            win->isMaximized() ? win->showNormal() : win->showMaximized(); 
-    });
-
-    connect(m_closeBtn, &QPushButton::clicked, this, [this]() {
-        if (QWidget *win = window()) win->close(); 
-    });
 }
 
 void ControlBar::setupStyle()

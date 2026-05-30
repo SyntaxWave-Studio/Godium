@@ -19,6 +19,7 @@ public:
     int buttonCount() const;
 
 private:
+    void setupUi();
     void setupStyle();
 
     QPushButton *createControlButton(const QString &icon, const QString &tooltip);
