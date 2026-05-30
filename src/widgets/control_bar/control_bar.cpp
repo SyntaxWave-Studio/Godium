@@ -36,16 +36,16 @@ ControlBar::ControlBar(QWidget *parent) : QFrame(parent)
     m_rightLayout->addWidget(m_closeBtn);
 
     connect(m_minimizeBtn, &QPushButton::clicked, this, [this]() {
-        if (auto *win = window()) win->showMinimized(); 
+        if (QWidget *win = window()) win->showMinimized(); 
     });
 
     connect(m_maximizeBtn, &QPushButton::clicked, this, [this]() {
-        if (auto *win = window())
-            win->isMaximized() ? win->showNormal() : win->showMaximized();
+        if (QWidget *win = window())
+            win->isMaximized() ? win->showNormal() : win->showMaximized(); 
     });
-    
+
     connect(m_closeBtn, &QPushButton::clicked, this, [this]() {
-        if (auto *win = window()) win->close(); 
+        if (QWidget *win = window()) win->close(); 
     });
 }
 
@@ -56,6 +56,24 @@ void ControlBar::setupStyle()
         "QPushButton { color: #969696; padding: 4px 10px; border: none; border-radius: 4px; font-size: 12px; }"
         "QPushButton:hover { background-color: #2d2d2d; color: #ffffff; }"
     );
+}
+
+void ControlBar::addButton(QPushButton *button, int pos)
+{
+    m_leftButtons.append(button);
+    m_leftLayout->insertWidget(pos, button);
+}
+
+void ControlBar::removeButton(QPushButton *button)
+{
+    m_leftButtons.removeAll(button);
+    m_leftLayout->removeWidget(button);
+    button->deleteLater();
+}
+
+int ControlBar::buttonCount() const
+{
+    return m_leftButtons.size();
 }
 
 QPushButton *ControlBar::createControlButton(const QString &icon, const QString &tooltip)

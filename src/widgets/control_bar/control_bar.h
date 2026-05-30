@@ -14,7 +14,7 @@ class ControlBar : public QFrame
 public:
     explicit ControlBar(QWidget *parent = nullptr);
 
-    void addButton(QPushButton *button);
+    void addButton(QPushButton *button, int pos = 0);
     void removeButton(QPushButton *button);
     int buttonCount() const;
 
