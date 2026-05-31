@@ -9,7 +9,7 @@ The project is being created as a fast and native alternative to heavyweight Ele
 ## 🎯 Philosophy and Architecture
 
 *   **📦 Monolithic Core:** Out of the box, only basic modules are provided — a built-in file explorer and a high-performance editor window.
-*   **🔌 Modularity (Plugin-first):** Any additional functionality (syntax highlighting, LSP autocomplete, terminal, Git) is extracted into isolated plugins that load only when needed.
+*   **🔌 Modularity (Plugin-first):** Any additional functionality is extracted into isolated plugins that load only when needed.
 *   **📐 Smart Interface Splitting:** A custom dynamic window system allows flexible splitting of the screen into independent workspaces without memory leaks or FPS drops.
 *   **⚙️ Deep Optimization:** The project is built via CMake with aggressive machine code compression flags, and the linker removes all unused Qt library code.
 
