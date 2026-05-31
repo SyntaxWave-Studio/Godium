@@ -15,7 +15,7 @@ src/
 
 | Component | Purpose |
 |-----------|---------|
-| **core/** | Core system - tiling, frameless windows, control bar, layout |
+| **windowing/** | Core system - tiling, frameless windows, control bar, layout |
 | **windows/** | Virtual window model - represents window state and groups |
 | **widgets/** | Common UI components - CodeEditor, etc. |
 | **config/** | Application configuration and windowing settings |
