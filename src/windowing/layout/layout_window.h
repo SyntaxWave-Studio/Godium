@@ -17,7 +17,10 @@ public:
 
     VirtualSplitter *groupSplitter() const { return m_groupSplitter; }
 
-private:
+protected:
+    void changeGroupingParent(QWidget *parent);
+
+private: 
     QWidget *m_groupWidget;
     QVBoxLayout *m_groupLayout;
     VirtualSplitter *m_groupSplitter;
