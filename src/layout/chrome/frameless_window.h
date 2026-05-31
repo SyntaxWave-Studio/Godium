@@ -32,10 +32,7 @@ protected:
 private:
     QWidget *m_central;
     QVBoxLayout *m_layout;
-
-    QSplitter *m_barSplitter;
     ControlBar *m_controlBar;
-
     QWidget *m_contentWidget = nullptr;
 
     int m_resizeMargin = 12;

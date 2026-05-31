@@ -17,30 +17,27 @@ FramelessWindow::FramelessWindow(QWidget *parent) : QMainWindow(parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->setSpacing(0);
 
-    m_barSplitter = new QSplitter(Qt::Vertical);
-    m_barSplitter->setHandleWidth(0);
-    m_layout->addWidget(m_barSplitter);
-
-    m_controlBar = new ControlBar(m_barSplitter);
-    m_barSplitter->addWidget(m_controlBar);
-    m_barSplitter->setStretchFactor(0, 0);
-    m_barSplitter->setStretchFactor(1, 1);
+    m_controlBar = new ControlBar();
+    m_layout->addWidget(m_controlBar);
 }
 
 void FramelessWindow::setContentWidget(QWidget *widget)
 {
-    if (m_contentWidget && m_barSplitter)
+    if (m_contentWidget)
     {
-        m_barSplitter->replaceWidget(1, widget);
+        m_layout->removeWidget(m_contentWidget);
+        m_contentWidget->setParent(nullptr);
         m_contentWidget->deleteLater();
-    }
-    else if (widget && m_barSplitter)
-    {
-        m_barSplitter->addWidget(widget);
-        m_barSplitter->setStretchFactor(1, 1);
     }
 
     m_contentWidget = widget;
+
+    if (m_contentWidget)
+    {
+        m_contentWidget->setParent(m_central);
+        m_layout->addWidget(m_contentWidget);
+        m_layout->setStretch(1, 1);
+    }
 }
 
 void FramelessWindow::setResizeMargin(int margin)
@@ -55,13 +52,9 @@ void FramelessWindow::mousePressEvent(QMouseEvent *event)
         Qt::Edges edges = hitZone(event->pos());
 
         if (edges != Qt::Edges(0))
-        {
             windowHandle()->startSystemResize(edges);
-        }
         else
-        {
             windowHandle()->startSystemMove();
-        }
     }
 }
 
