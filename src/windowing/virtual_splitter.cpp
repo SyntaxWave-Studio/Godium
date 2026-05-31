@@ -1,8 +1,8 @@
 #include "virtual_splitter.h"
 
-VirtualSplitter::VirtualSplitter(Qt::Orientation orientation, QWidget *parent) : QSplitter(orientation, parent)
+VirtualSplitter::VirtualSplitter(Qt::Orientation orientation, QWidget *parent, int width) : QSplitter(orientation, parent)
 {
-    setHandleWidth(6);
+    setHandleWidth(width);
     setStyleSheet(
         "QSplitter { background: transparent; border: none; }"
         "QSplitter::handle { background: transparent; }"
@@ -12,7 +12,7 @@ VirtualSplitter::VirtualSplitter(Qt::Orientation orientation, QWidget *parent) :
 void VirtualSplitter::cleanupStructure(QSplitter *splitter)
 {
     VirtualSplitter *vSplitter = qobject_cast<VirtualSplitter *>(splitter);
-    if (vSplitter && !vSplitter->allowRemove())
+    if (!vSplitter || !vSplitter->allowRemove())
         return;
 
     QSplitter *parentSplitter = qobject_cast<QSplitter *>(splitter->parentWidget());

@@ -1,9 +1,13 @@
 #include "control_bar.h"
 
-ControlBar::ControlBar(QWidget *parent) : QFrame(parent)
+#include <QWindow>
+#include <QMouseEvent>
+
+ControlBar::ControlBar(QWidget *parent, int height) : QFrame(parent)
 {
-    setFixedHeight(30);
+    setFixedHeight(height);
     setAttribute(Qt::WA_StyledBackground);
+    setMouseTracking(true);
 
     setupUi();
     setupStyle();
@@ -79,6 +83,20 @@ void ControlBar::removeButton(QPushButton *button)
 int ControlBar::buttonCount() const
 {
     return m_leftButtons.size();
+}
+
+void ControlBar::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && window())
+    {
+        if (event->pos().y() < 10)
+        {
+            event->ignore();
+            return;
+        }
+
+        window()->windowHandle()->startSystemMove();
+    }
 }
 
 QPushButton *ControlBar::createControlButton(const QString &icon, const QString &tooltip)

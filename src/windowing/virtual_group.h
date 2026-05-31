@@ -26,7 +26,8 @@ public:
     explicit VirtualGroup(VirtualWindow *virtualWindow, QWidget *parent = nullptr);
     void addWindow(VirtualWindow *window);
 
-private : QPoint dragStartPos;
+private : 
+    QPoint dragStartPos;
     QRubberBand *preview;
 
     void setupUi();

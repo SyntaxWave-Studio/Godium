@@ -20,4 +20,4 @@ echo "========================================="
 echo "Running Linux Binary: $BINARY"
 echo "========================================="
 
-exec "$BINARY" "$@"
+exec "$BINARY"

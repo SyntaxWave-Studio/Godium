@@ -18,9 +18,7 @@ public:
     void setDockWindow(VirtualWindow *dock);
 
 protected:
-    ControlBar *m_menuBar;
-    VirtualSplitter *m_menuSplitter;
-    VirtualSplitter *m_bodySplitter;
+    QSplitter *m_dockSplitter;
     VirtualWindow *m_dockPanel = nullptr;
 };
 

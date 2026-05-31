@@ -7,11 +7,11 @@ class WindowingConfig : public Config
 {
 public:
     static WindowingConfig& instance();
-    
-    int spacing() const;
+
+    bool spacing() const;
     bool roundedCorners() const;
-    
-    void setSpacing(int value);
+
+    void setSpacing(bool value);
     void setRoundedCorners(bool value);
     
 protected:

@@ -3,11 +3,13 @@
 
 #include "virtual_group.h"
 #include "virtual_splitter.h"
+#include "control_bar.h"
+#include "frameless_window.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
 
-class LayoutWindow : public QMainWindow
+class LayoutWindow : public FramelessWindow
 {
     Q_OBJECT
 
@@ -17,7 +19,11 @@ public:
     VirtualSplitter *groupSplitter() const { return m_groupSplitter; }
 
 protected:
-    QWidget *m_central;
+    FramelessWindow *m_FramelessWindow;
+    QSplitter *m_menuSplitter;
+    ControlBar *m_controlBar;
+    
+    QWidget *m_contentWidget;
     QVBoxLayout *m_layout;
     VirtualSplitter *m_groupSplitter;
 };

@@ -17,9 +17,9 @@ WindowingConfig::WindowingConfig()
     data() = windowing;
 }
 
-int WindowingConfig::spacing() const
+bool WindowingConfig::spacing() const
 {
-    return data().contains("spacing") ? data()["spacing"].toInt() : 4;
+    return data().contains("spacing") ? data()["spacing"].toBool() : 4;
 }
 
 bool WindowingConfig::roundedCorners() const
@@ -27,7 +27,7 @@ bool WindowingConfig::roundedCorners() const
     return data().contains("rounded_corners") ? data()["rounded_corners"].toBool() : true;
 }
 
-void WindowingConfig::setSpacing(int value)
+void WindowingConfig::setSpacing(bool value)
 {
     data()["spacing"] = value;
 }

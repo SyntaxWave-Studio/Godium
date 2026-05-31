@@ -12,7 +12,7 @@ class ControlBar : public QFrame
     Q_OBJECT
 
 public:
-    explicit ControlBar(QWidget *parent = nullptr);
+    explicit ControlBar(QWidget *parent = nullptr, int height = 30);
 
     void addButton(QPushButton *button, int pos = 0);
     void removeButton(QPushButton *button);
@@ -21,6 +21,8 @@ public:
 private:
     void setupUi();
     void setupStyle();
+
+    void mousePressEvent(QMouseEvent *event) override;
 
     QPushButton *createControlButton(const QString &icon, const QString &tooltip);
 

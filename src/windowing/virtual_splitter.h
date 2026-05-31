@@ -10,7 +10,7 @@ class VirtualSplitter : public QSplitter
     Q_OBJECT
 
 public:
-    explicit VirtualSplitter(Qt::Orientation orientation, QWidget *parent = nullptr);
+    explicit VirtualSplitter(Qt::Orientation orientation, QWidget *parent = nullptr, int width = 6);
 
     void cleanupStructure() { cleanupStructure(this); }
     static void cleanupStructure(QSplitter *splitter);
@@ -22,7 +22,7 @@ public:
     bool allowRemove() const { return m_allowRemove; }
     void setAllowRemove(bool allow) { m_allowRemove = allow; }
 
-protected:
+private:
     bool m_allowDrop = true;
     bool m_allowRemove = true;
 };
