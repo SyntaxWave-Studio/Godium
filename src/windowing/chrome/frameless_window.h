@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QVBoxLayout>
-#include <QSplitter>>
+#include <QSplitter>
 
 class FramelessWindow : public QMainWindow
 {
@@ -16,9 +16,10 @@ public:
     explicit FramelessWindow(QWidget *parent = nullptr);
     ~FramelessWindow() override = default;
 
+    QWidget *contentWidget() const { return m_contentWidget; }
     void setContentWidget(QWidget *widget);
 
-    int resizeMargin() const;
+    int resizeMargin() const { return m_resizeMargin; }
     void setResizeMargin(int margin);
 
 protected:
@@ -34,7 +35,8 @@ private:
 
     QSplitter *m_barSplitter;
     ControlBar *m_controlBar;
-    QWidget *m_contentWidget;
+
+    QWidget *m_contentWidget = nullptr;
 
     int m_resizeMargin = 12;
 };

@@ -5,34 +5,42 @@
 
 FramelessWindow::FramelessWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setMouseTracking(true);
+    setStyleSheet("QMainWindow { background: #0b0b0c; }");
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::FramelessWindowHint);
+    setMouseTracking(true);
 
-    QWidget *centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
+    m_central = new QWidget(this);
+    setCentralWidget(m_central);
 
-    layout = new QVBoxLayout(centralWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout = new QVBoxLayout(m_central);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
+
+    m_barSplitter = new QSplitter(Qt::Vertical);
+    m_barSplitter->setHandleWidth(0);
+    m_layout->addWidget(m_barSplitter);
+
+    m_controlBar = new ControlBar(m_barSplitter);
+    m_barSplitter->addWidget(m_controlBar);
+    m_barSplitter->setStretchFactor(0, 0);
+    m_barSplitter->setStretchFactor(1, 1);
 }
 
 void FramelessWindow::setContentWidget(QWidget *widget)
 {
-    QLayoutItem *item;
-    while ((item = layout->takeAt(0)) != nullptr)
+    if (m_contentWidget && m_barSplitter)
     {
-        if (item->widget())
-            item->widget()->setParent(nullptr);
-        delete item;
+        m_barSplitter->replaceWidget(1, widget);
+        m_contentWidget->deleteLater();
+    }
+    else if (widget && m_barSplitter)
+    {
+        m_barSplitter->addWidget(widget);
+        m_barSplitter->setStretchFactor(1, 1);
     }
 
-    if (widget)
-        layout->addWidget(widget);
-}
-
-int FramelessWindow::resizeMargin() const
-{
-    return m_resizeMargin;
+    m_contentWidget = widget;
 }
 
 void FramelessWindow::setResizeMargin(int margin)
