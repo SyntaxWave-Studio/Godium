@@ -1,6 +1,6 @@
 #include "layout_window.h"
 
-LayoutWindow::LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent) : ControlBarWindow(parent)
+LayoutWindow::LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent) : FramelessWindow(parent)
 {
     m_groupSplitter = new VirtualSplitter(Qt::Horizontal);
     setContentWidget(m_groupSplitter);

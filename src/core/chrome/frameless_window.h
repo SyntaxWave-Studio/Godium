@@ -1,9 +1,12 @@
 #ifndef FramelessWindow_H
 #define FramelessWindow_H
 
+#include "control_bar.h"
+
 #include <QWidget>
 #include <QMainWindow>
 #include <QVBoxLayout>
+#include <QSplitter>>
 
 class FramelessWindow : public QMainWindow
 {
@@ -26,7 +29,13 @@ protected:
     Qt::Edges hitZone(const QPoint &pos) const;
 
 private:
-    QVBoxLayout *layout;
+    QWidget *m_central;
+    QVBoxLayout *m_layout;
+
+    QSplitter *m_barSplitter;
+    ControlBar *m_controlBar;
+    QWidget *m_contentWidget;
+
     int m_resizeMargin = 12;
 };
 
