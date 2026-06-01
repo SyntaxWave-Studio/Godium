@@ -25,7 +25,7 @@ LayoutWindow::LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent) : Fram
     }
 }
 
-void LayoutWindow::changeGroupingParent(QWidget *parent)
+void LayoutWindow::changeGroupParent(QWidget *parent)
 {
     m_groupWidget->setParent(parent);
 }

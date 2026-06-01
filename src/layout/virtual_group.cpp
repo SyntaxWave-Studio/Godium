@@ -173,14 +173,6 @@ void VirtualGroup::dragEnterEvent(QDragEnterEvent *e)
         return;
     }
 
-    VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
-    if (!parentSplitter || !parentSplitter->allowDrop())
-    {
-        e->ignore();
-        preview->hide();
-        return;
-    }
-
     e->acceptProposedAction();
     preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
     preview->show();
@@ -191,14 +183,6 @@ void VirtualGroup::dragMoveEvent(QDragMoveEvent *e)
     const QMimeData *mime = e->mimeData();
     if (mime->hasFormat("application/x-virtualwindow-ptr") || mime->hasUrls())
     {
-        VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(parentWidget());
-        if (!parentSplitter || !parentSplitter->allowDrop())
-        {
-            e->ignore();
-            preview->hide();
-            return;
-        }
-
         e->acceptProposedAction();
         preview->setGeometry(calculatePreviewRect(e->position().toPoint()));
         preview->show();
