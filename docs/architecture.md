@@ -8,7 +8,8 @@ src/
 │   └── main_window.h/cpp
 │
 ├── layout/
-│   └── chrome/
+│
+├── chrome/
 │ 
 ├── windows/
 │   └── editor/
@@ -24,7 +25,7 @@ src/
 | Component | Purpose |
 |-----------|---------|
 | **app/** | Main application entry point - MainWindow is the root window |
-| **layout/chrome/** | Window chrome - FramelessWindow (frameless resize/move), ControlBar (title bar UI) |
+| **chrome/** | Window chrome - FramelessWindow (frameless resize/move), ControlBar (title bar UI) |
 | **layout/** | Layout system - LayoutWindow (base window), VirtualWindow/Group/Splitter (tiling model) |
 | **windows/** | Concrete VirtualWindow implementations (EditorWindow for code editing) |
 | **widgets/** | Reusable UI components (CodeEditor with syntax highlighting, LineNumberArea) |
