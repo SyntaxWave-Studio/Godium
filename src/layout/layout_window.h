@@ -15,9 +15,13 @@ class LayoutWindow : public FramelessWindow
 public:
     explicit LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent = nullptr);
 
-    VirtualSplitter *groupSplitter() const { return m_groupSplitter; }
+    //Testing void; will be deleted
+    void addWidgetToGroupSplitter(QWidget *widget) { m_groupSplitter->addWidget(widget); }
 
 protected:
+    VirtualSplitter *groupSplitter() const { return m_groupSplitter; }
+    QVBoxLayout *groupLayout() const { return m_groupLayout; }
+
     void changeGroupParent(QWidget *parent);
 
 private: 

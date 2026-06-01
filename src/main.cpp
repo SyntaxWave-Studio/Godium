@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         editor->initializeContent(fileName);
 
         VirtualGroup *group = new VirtualGroup(editor);
-        w->groupSplitter()->addWidget(group);
+        w->addWidgetToGroupSplitter(group);
     }
 
     w->showNormal();
