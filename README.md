@@ -19,6 +19,6 @@ The project is being created as a fast and native alternative to heavyweight Ele
 
 This is my first major step into the world of C++ systems programming and working with the Qt6 framework. If you have ideas for optimizing interface rendering algorithms, managing memory allocations, or designing a stable Plugin API — pull requests and issues are always welcome! Let's build the lightest editor together.
 
-Since this is my first large-scale project, the code architecture and memory management systems may contain bugs, hacks, or suboptimal solutions. If you notice leaks, excessive allocations, or places where Qt6 could perform better — feel free to open an issue or send pull requests with fixes. I am actively learning and welcome constructive criticism!
+Since this is my first large-scale project, the code architecture may contains bugs, hacks, or suboptimal solutions. If you notice places where Qt6 could perform better — feel free to open an issue or send pull requests with fixes. I am actively learning and welcome constructive criticism!
 
 You can write here or message me directly on Discord — vladik88 is my username.
