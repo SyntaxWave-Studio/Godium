@@ -51,10 +51,11 @@ void FramelessWindow::mousePressEvent(QMouseEvent *event)
     {
         Qt::Edges edges = hitZone(event->pos());
 
-        if (edges != Qt::Edges(0))
-            windowHandle()->startSystemResize(edges);
-        else
+        if (window()->isMaximized() || edges == Qt::Edges(0))
             windowHandle()->startSystemMove();
+
+        if (!window()->isMaximized() && edges != Qt::Edges(0))
+            windowHandle()->startSystemResize(edges);
     }
 }
 

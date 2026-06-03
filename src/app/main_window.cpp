@@ -2,11 +2,12 @@
 
 MainWindow::MainWindow(QWidget *parent) : LayoutWindow(nullptr, parent)
 {
-    m_dockSplitter = new QSplitter();
-    m_dockSplitter->setHandleWidth(6);
+    m_dockSplitter = new VirtualSplitter(Qt::Horizontal);
+    m_dockSplitter->setAllowRemove(false);
 
-    groupLayout()->replaceWidget(groupSplitter(), m_dockSplitter);
+    groupLayout() -> replaceWidget(groupSplitter(), m_dockSplitter);
     m_dockSplitter->addWidget(groupSplitter());
+    groupSplitter()->setAllowRemove(false);
 }
 
 void MainWindow::setDockWindow(VirtualWindow *dock)

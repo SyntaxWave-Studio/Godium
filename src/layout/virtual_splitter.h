@@ -16,14 +16,10 @@ public:
     static void cleanupStructure(VirtualSplitter *splitter);
     static void cleanupStructure(VirtualGroup *group);
 
-    bool allowDrop() const { return m_allowDrop; }
-    void setAllowDrop(bool allow) { m_allowDrop = allow; }
-
     bool allowRemove() const { return m_allowRemove; }
     void setAllowRemove(bool allow) { m_allowRemove = allow; }
 
 private:
-    bool m_allowDrop = true;
     bool m_allowRemove = true;
 };
 
