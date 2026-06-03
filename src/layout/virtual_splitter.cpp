@@ -9,13 +9,13 @@ VirtualSplitter::VirtualSplitter(Qt::Orientation orientation, QWidget *parent, i
     );
 }
 
-void VirtualSplitter::cleanupStructure(QSplitter *splitter)
+void VirtualSplitter::cleanupStructure(VirtualSplitter *splitter)
 {
     VirtualSplitter *vSplitter = qobject_cast<VirtualSplitter *>(splitter);
     if (!vSplitter || !vSplitter->allowRemove())
         return;
 
-    QSplitter *parentSplitter = qobject_cast<QSplitter *>(splitter->parentWidget());
+    VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(splitter->parentWidget());
     if (splitter->count() == 0)
     {
         splitter->deleteLater();
@@ -36,7 +36,7 @@ void VirtualSplitter::cleanupStructure(VirtualGroup *group)
 {
     if (group->count() == 0)
     {
-        QSplitter *parentSplitter = qobject_cast<QSplitter *>(group->parentWidget());
+        VirtualSplitter *parentSplitter = qobject_cast<VirtualSplitter *>(group->parentWidget());
 
         group->setParent(nullptr);
         group->deleteLater();

@@ -6,7 +6,7 @@ LayoutWindow::LayoutWindow(VirtualWindow *virtualWindow, QWidget *parent) : Fram
     setContentWidget(m_groupWidget);
 
     m_groupSplitter = new VirtualSplitter(Qt::Horizontal);
-    m_groupSplitter->setAllowDrop(true);
+    //m_groupSplitter->setAllowDrop(true);
     m_groupSplitter->setAllowRemove(true);
 
     m_groupLayout = new QVBoxLayout(m_groupWidget);

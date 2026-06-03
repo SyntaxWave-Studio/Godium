@@ -2,7 +2,11 @@
 
 MainWindow::MainWindow(QWidget *parent) : LayoutWindow(nullptr, parent)
 {
+    m_dockSplitter = new QSplitter();
+    m_dockSplitter->setHandleWidth(6);
 
+    groupLayout()->replaceWidget(groupSplitter(), m_dockSplitter);
+    m_dockSplitter->addWidget(groupSplitter());
 }
 
 void MainWindow::setDockWindow(VirtualWindow *dock)
@@ -14,14 +18,11 @@ void MainWindow::setDockWindow(VirtualWindow *dock)
         m_dockPanel = nullptr;
     }
 
-    if (!dock)
-        return;
-
     m_dockPanel = dock;
-    m_dockPanel->setMinimumWidth(200);
-    m_dockPanel->setMaximumWidth(400);
+    if (!m_dockPanel)
+        return;
 
     m_dockSplitter->insertWidget(0, m_dockPanel);
     m_dockSplitter->setStretchFactor(0, 1);
-    m_dockSplitter->setStretchFactor(1, 3);
+    m_dockSplitter->setStretchFactor(1, 2);
 }

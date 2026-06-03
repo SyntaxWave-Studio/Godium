@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
         w->addWidgetToGroupSplitter(group);
     }
 
+    EditorWindow *dock = new EditorWindow();
+    dock->initializeContent("dock.cpp");
+    w->setDockWindow(dock);
+
     w->showNormal();
     return a.exec();
 }

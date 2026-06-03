@@ -13,7 +13,7 @@ public:
     explicit VirtualSplitter(Qt::Orientation orientation, QWidget *parent = nullptr, int width = 6);
 
     void cleanupStructure() { cleanupStructure(this); }
-    static void cleanupStructure(QSplitter *splitter);
+    static void cleanupStructure(VirtualSplitter *splitter);
     static void cleanupStructure(VirtualGroup *group);
 
     bool allowDrop() const { return m_allowDrop; }
