@@ -1,5 +1,5 @@
-#ifndef CONTROLBAR_H
-#define CONTROLBAR_H
+#ifndef CONTROL_BAR_H
+#define CONTROL_BAR_H
 
 #include <QWidget>
 #include <QHBoxLayout>

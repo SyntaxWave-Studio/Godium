@@ -1,5 +1,5 @@
-#ifndef WINDOWFACTORY_H
-#define WINDOWFACTORY_H
+#ifndef WINDOW_FACTORY_H
+#define WINDOW_FACTORY_H
 
 #include "virtual_window.h"
 

@@ -1,5 +1,5 @@
-#ifndef VIRTUALGROUP_H
-#define VIRTUALGROUP_H
+#ifndef VIRTUAL_GROUP_H
+#define VIRTUAL_GROUP_H
 
 #include "virtual_window.h"
 

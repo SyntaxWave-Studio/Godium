@@ -1,5 +1,5 @@
-#ifndef FRAMELESSWINDOW_H
-#define FRAMELESSWINDOW_H
+#ifndef FRAMELESS_WINDOW_H
+#define FRAMELESS_WINDOW_H
 
 #include "control_bar.h"
 

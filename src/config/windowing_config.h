@@ -13,9 +13,6 @@ public:
 
     void setSpacing(bool value);
     void setRoundedCorners(bool value);
-    
-protected:
-    WindowingConfig();
 };
 
 #endif

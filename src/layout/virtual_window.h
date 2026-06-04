@@ -1,5 +1,5 @@
-#ifndef VIRTUALWINDOW_H
-#define VIRTUALWINDOW_H
+#ifndef VIRTUAL_WINDOW_H
+#define VIRTUAL_WINDOW_H
 
 #include <QWidget>
 #include <QVariant>

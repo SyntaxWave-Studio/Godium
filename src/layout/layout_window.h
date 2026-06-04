@@ -1,5 +1,5 @@
-#ifndef LAYOUTWINDOW_H
-#define LAYOUTWINDOW_H
+#ifndef LAYOUT_WINDOW_H
+#define LAYOUT_WINDOW_H
 
 #include "virtual_group.h"
 #include "virtual_splitter.h"
