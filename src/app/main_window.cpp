@@ -1,4 +1,5 @@
 #include "main_window.h"
+#include "editor_window.h"
 
 MainWindow::MainWindow(QWidget *parent) : LayoutWindow(nullptr, parent)
 {
@@ -8,6 +9,20 @@ MainWindow::MainWindow(QWidget *parent) : LayoutWindow(nullptr, parent)
     groupLayout() -> replaceWidget(groupSplitter(), m_dockSplitter);
     m_dockSplitter->addWidget(groupSplitter());
     groupSplitter()->setAllowRemove(false);
+
+    const QStringList files = {"main.cpp", "style.css", "hello.cpp"};
+    for (const QString &fileName : files)
+    {
+        EditorWindow *editor = new EditorWindow();
+        editor->initializeContent(fileName);
+
+        VirtualGroup *group = new VirtualGroup(editor);
+        groupSplitter()->addWidget(group);
+    }
+
+    EditorWindow *dock = new EditorWindow();
+    dock->initializeContent("dock.cpp");
+    setDockWindow(dock);
 }
 
 void MainWindow::setDockWindow(VirtualWindow *dock)
