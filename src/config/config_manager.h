@@ -15,7 +15,7 @@ public:
     static ConfigManager& instance();
 
     template <typename TConfig>
-    TConfig &getConfig();
+    TConfig& getConfig();
 
 private:
     explicit ConfigManager(QObject* parent = nullptr);

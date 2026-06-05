@@ -11,16 +11,16 @@ ConfigManager& ConfigManager::instance()
 }
 
 template <typename TConfig>
-TConfig &ConfigManager::getConfig()
+TConfig& ConfigManager::getConfig()
 {
     QString name = TConfig::staticMetaObject.className();
 
     if (!m_configs.contains(name))
     {
-        TConfig *cfg = new TConfig(this);
+        TConfig* cfg = new TConfig(this);
         cfg->load();
         m_configs[name] = cfg;
     }
 
-    return static_cast<TConfig &>(*m_configs[name]);
+    return static_cast<TConfig&>(*m_configs[name]);
 }
