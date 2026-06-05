@@ -11,11 +11,14 @@ src/
 │
 ├── chrome/
 │ 
+│   (based on virtual_window.h)
 ├── windows/
-│   └── editor/
+│   ├── editor/
+│   └── ...
 │
 ├── widgets/
-│   └── code_editor/
+│   ├── code_editor/
+│   └── ...
 │
 └── config/
 ```

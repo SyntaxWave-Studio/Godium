@@ -19,8 +19,8 @@ public:
     int buttonCount() const;
 
 private:
-    void setupUi();
-    void setupStyle();
+    inline void setupUi();
+    inline void setupStyle();
 
     void mousePressEvent(QMouseEvent *event) override;
 
