@@ -1,15 +1,15 @@
 # 🚀 Godium
 
-**Godium** is my first serious C++ project. A high-performance, responsive, and minimalist code editor built on **Qt6 (C++17)**.
+**Godium** is my first serious C++ project. A high-performance, responsive, and minimalist code editor built on **Qt6 Widgets (C++17)**.
 
-The project is being created as a fast and native alternative to heavyweight Electron applications like VS Code. The main goal is to prove that a modern and user-friendly development tool can be extremely lightweight.
+The project is being created as a fast and native alternative to heavyweight Electron applications like VS Code. The main goal is to prove that a modern and user-friendly development tool Qt6 can be extremely lightweight.
 
 ---
 
 ## 🎯 Philosophy and Architecture
 
 *   **📦 Monolithic Core:** Out of the box, only basic modules are provided — a built-in file explorer and a high-performance editor window.
-*   **🔌 Modularity (Plugin-first):** Any additional functionality is extracted into isolated plugins that load only when needed.
+*   **🔌 Modularity (Plugin-first):** Any additional functionality is extracted into isolated plugins that load only when needed. (In development)
 *   **📐 Smart Interface Splitting:** A custom dynamic window system allows flexible splitting of the screen into independent workspaces without memory leaks or FPS drops.
 *   **⚙️ Deep Optimization:** The project is built via CMake with aggressive machine code compression flags, and the linker removes all unused Qt library code.
 
