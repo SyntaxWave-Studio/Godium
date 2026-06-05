@@ -12,15 +12,15 @@ class ConfigManager : public QObject
     Q_OBJECT
 
 public:
-    static ConfigManager& instance();
+    static ConfigManager &instance();
 
     template <typename TConfig>
-    TConfig& getConfig();
+    TConfig &getConfig();
 
 private:
-    explicit ConfigManager(QObject* parent = nullptr);
+    explicit ConfigManager(QObject *parent = nullptr);
 
-    QMap<QString, Config*> m_configs;
+    QMap<QString, Config *> m_configs;
 };
 
 #endif

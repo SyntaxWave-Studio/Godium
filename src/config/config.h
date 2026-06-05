@@ -14,14 +14,20 @@ public:
     virtual QString configName() const = 0;
 
 protected:
-    QString configFolder() const { return CONFIG_PATH; }
-    QString configFilePath() const 
-    {
-        return QString("%1/%2/%3.json")
-            .arg(QDir::currentPath())
-            .arg(configFolder())
-            .arg(configName());
-    }
+    friend class ConfigManager;
+    explicit Config(QObject *parent = nullptr);
+
+    QString configFolder() const;
+    QString configFilePath() const;
+
+    QJsonObject &data() { return m_data; }
+    const QJsonObject &data() const { return m_data; }
+
+signals:
+    void configChanged();
+
+private:
+    QJsonObject m_data;
 };
 
 #endif
