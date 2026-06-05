@@ -49,7 +49,7 @@ void ControlBar::setupUi()
     m_rightLayout->setContentsMargins(0, 0, 0, 0);
     m_rightLayout->setSpacing(0);
 
-    m_minimizeBtn = createControlButton("-", "Minimize");
+    m_minimizeBtn = createControlButton("_", "Minimize");
     m_maximizeBtn = createControlButton("□", "Maximize");
     m_closeBtn = createControlButton("x", "Close");
 

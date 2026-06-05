@@ -30,9 +30,9 @@ private :
     QPoint dragStartPos;
     QRubberBand *preview;
 
-    inline void setupUi();
-    inline void setupStyle();
-    inline void setupPreview();
+    void setupUi();
+    void setupStyle();
+    void setupPreview();
 
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *e) override;
