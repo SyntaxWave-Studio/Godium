@@ -7,7 +7,7 @@ WindowingConfig& WindowingConfig::instance()
     return config;
 }
 
-WindowingConfig::WindowingConfig()
+/*WindowingConfig::WindowingConfig()
 {
     configFile() = QString("%1/%2/windowing.json").arg(QDir::currentPath()).arg(CONFIG_PATH);
     
@@ -15,7 +15,7 @@ WindowingConfig::WindowingConfig()
     windowing["spacing"] = 4;
     windowing["rounded_corners"] = true;
     data() = windowing;
-}
+}*/
 
 bool WindowingConfig::spacing() const
 {
