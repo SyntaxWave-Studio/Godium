@@ -15,7 +15,6 @@ qt_standard_project_setup()
 file(GLOB_RECURSE SOURCES
     "../../src/*.cpp"
     "../../src/*.h"
-    "../../src/config/*.cpp"
 )
 
 qt_add_executable(Godium ${SOURCES})
