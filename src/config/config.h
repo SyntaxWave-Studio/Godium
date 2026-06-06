@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QJsonObject>
 #include <QString>
-#include <QDir>
 
 class Config : public QObject
 {
