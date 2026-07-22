@@ -1,11 +1,10 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE}")" && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
 mkdir -p "$BUILD_TMP_DIR"
-
 cmake -S "$SCRIPT_DIR" -B "$BUILD_TMP_DIR" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD_TMP_DIR" --config Release --parallel
 

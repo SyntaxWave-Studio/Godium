@@ -1,4 +1,3 @@
-#!/bin/bash
 BINARY_NAME="Godium"
 
 BUILD_DIR="$SCRIPT_DIR/build"
