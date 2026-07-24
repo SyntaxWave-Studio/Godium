@@ -279,16 +279,18 @@ void VirtualGroup::dropEvent(QDropEvent *e)
 
 QRect VirtualGroup::calculatePreviewRect(const QPoint &pos) const
 {
+    int zone = determineDropZone(pos);
+
     int w = width();
     int h = height();
 
-    if (pos.x() < w * 0.2)
+    if (zone == ZoneLeft)
         return QRect(0, 0, w / 2, h);
-    if (pos.x() > w * 0.8)
+    if (zone == ZoneRight)
         return QRect(w / 2, 0, w / 2, h);
-    if (pos.y() < h * 0.2)
+    if (zone == ZoneTop)
         return QRect(0, 0, w, h / 2);
-    if (pos.y() > h * 0.8)
+    if (zone == ZoneBottom)
         return QRect(0, h / 2, w, h / 2);
 
     return QRect(0, 0, w, h);
@@ -296,6 +298,9 @@ QRect VirtualGroup::calculatePreviewRect(const QPoint &pos) const
 
 int VirtualGroup::determineDropZone(const QPoint &pos) const
 {
+    if (this->count() == 0)
+        return ZoneCenter;
+
     int w = width();
     int h = height();
 

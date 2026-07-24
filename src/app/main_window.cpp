@@ -8,7 +8,9 @@ MainWindow::MainWindow(QWidget *parent) : LayoutWindow(nullptr, parent)
 
     groupLayout() -> replaceWidget(groupSplitter(), m_dockSplitter);
     m_dockSplitter->addWidget(groupSplitter());
+    
     groupSplitter()->setAllowRemove(false);
+    groupSplitter()->setSaveGroup(true);
 
     const QStringList files = {"main.cpp", "style.css", "hello.cpp"};
     for (const QString &fileName : files)
