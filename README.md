@@ -1,1 +1,0 @@
-The project is being reworked. This is its old version based on Qt6.
